@@ -1,0 +1,10 @@
+Planet	Distance From Sun (miles)	Diameter (miles)	Year Length (days)	Day Length (days)
+Mercury	36,000,000	3,030	88	58.00
+Venus	67,000,000	7,520	225	225.00
+Earth	93,000,000	7,925	365	1.00
+Mars	142,000,000	4,210	687	1.00
+Jupiter	484,000,000	88,730	4,344	0.40
+Saturn	888,000,000	74,975	10,768	0.40
+Uranus	1,800,000,000	31,760	30,660	0.70
+Neptune	2,800,000,000	30,600	60,150	0.65
+Pluto	3,600,000,000	1,410	90,520	0.25

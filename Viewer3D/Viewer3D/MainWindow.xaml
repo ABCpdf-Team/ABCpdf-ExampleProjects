@@ -1,0 +1,249 @@
+﻿<Window x:Class="Viewer3D.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:custom="clr-namespace:Glue3DUtilities;assembly=Glue3DUtilities"
+        xmlns:goo="clr-namespace:WebSupergoo;assembly=Glue3DUtilities"
+        xmlns:v3d="clr-namespace:Viewer3D"      
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Viewer3D" 
+        Initialized="Window_Initialized" 
+        Closing="Window_Closing"
+        Closed="Window_Closed" 
+        mc:Ignorable="d" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        Height="475" 
+        Width="600" >
+  <Window.Resources>
+    <v3d:UInt32ToBooleanConverter x:Key="converterU32" />
+    <v3d:LightingSchemeToBooleanConverter x:Key="converterLS" />
+    <v3d:BoolToVisibilityConverter x:Key="converterBoolToVis" />
+  </Window.Resources>
+  <DockPanel>
+        <Menu Name="MainMenu" IsMainMenu="True" DockPanel.Dock="Top" >
+            <MenuItem Header="File">
+                <MenuItem Header="Open..." Name="File_Open" Click="MenuItem_Click" />
+                <MenuItem Header="Close" Name="File_Close" Click="MenuItem_Click" />
+                <Separator />
+                <MenuItem Header="Export..." Name="File_Export" Click="MenuItem_Click" />
+                <Separator />
+                <MenuItem Header="Extract 3D Data from PDF..." Name="File_Extract" Click="MenuItem_Click" />
+                <Separator />
+                <MenuItem Header="Quit" Name="File_Quit" Click="MenuItem_Click" />
+            </MenuItem>
+            <MenuItem Header="Renderer">
+              <MenuItem Header="Anti-Aliasing" Name="AntialiasingMenu" >
+                <MenuItem Header="Off"
+                          IsCheckable="True" >
+                  <MenuItem.IsChecked>
+                    <Binding ElementName="OpenGLRenderControl"
+                             Path="AntiAliasing"
+                             Converter="{StaticResource converterU32}">
+                      <Binding.ConverterParameter>
+                        <sys:UInt32>0</sys:UInt32>
+                      </Binding.ConverterParameter>
+                    </Binding>
+                  </MenuItem.IsChecked>                  
+                </MenuItem>
+                <Separator />
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="Anisotropic Filtering" Name="AnisotropyMenu" >
+                <MenuItem Header="Off"
+                          IsCheckable="True">
+                  <MenuItem.IsChecked>
+                    <Binding ElementName="OpenGLRenderControl"
+                             Path="AnisotropicFiltering"
+                             Converter="{StaticResource converterU32}">
+                      <Binding.ConverterParameter>
+                        <sys:UInt32>0</sys:UInt32>
+                      </Binding.ConverterParameter>
+                    </Binding>
+                  </MenuItem.IsChecked>
+                </MenuItem>                  
+                <Separator />
+              </MenuItem>
+            </MenuItem>
+          <MenuItem Header="World">
+                <MenuItem Header="Show Axis" 
+                          IsCheckable="True" 
+                          IsChecked="{Binding 
+                                      ElementName=OpenGLRenderControl,
+                                      Path=ShowWorldAxis}" />
+                <MenuItem Header="Show Grid" 
+                          IsCheckable="True" 
+                          IsChecked="{Binding 
+                                      ElementName=OpenGLRenderControl,
+                                      Path=ShowWorldGrid}" />
+            </MenuItem>
+            <MenuItem Header="Model">
+                <MenuItem Header="Show Scene Bounding Box" 
+                          IsCheckable="True" 
+                          IsChecked="{Binding 
+                                      ElementName=OpenGLRenderControl,
+                                      Path=ShowSceneBBox}" />
+                <MenuItem Header="Show Model Bounding Boxes" 
+                          IsCheckable="True" 
+                          IsChecked="{Binding 
+                                      ElementName=OpenGLRenderControl,
+                                      Path=ShowModelBBoxes}" />
+            </MenuItem>
+            <MenuItem Header="Lights">
+              <MenuItem Header="None"
+                        IsCheckable="True"
+                        IsChecked="{Binding 
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_None}}" />
+              <Separator />
+              <MenuItem Header="Artwork"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Artwork}}" />
+              <Separator />
+              <MenuItem Header="White"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_White}}" />
+              <MenuItem Header="Day"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Day}}" />
+              <MenuItem Header="Night"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Night}}" />
+              <MenuItem Header="Hard"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Hard}}" />
+              <MenuItem Header="Primary"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Primary}}" />
+              <MenuItem Header="Blue"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Blue}}" />
+              <MenuItem Header="Red"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Red}}" />
+              <MenuItem Header="Cube"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Cube}}" />
+              <MenuItem Header="CAD"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_CAD}}" />
+              <MenuItem Header="Headlamp"
+                        IsCheckable="True"
+                        IsChecked="{Binding
+                                      ElementName=OpenGLRenderControl,
+                                      Path=LightingScheme, 
+                                      Converter={StaticResource converterLS}, 
+                                      ConverterParameter={x:Static goo:ELightingScheme.LightingScheme_Headlamp}}" />
+            </MenuItem>
+            <MenuItem Name="ViewMenu" Header="View">
+              <MenuItem Header="Screenshot" Name="View_Screenshot" Click="MenuItem_Click" />
+              <Separator />
+              <MenuItem Header="Load ViewInfo from File..." Name="View_LoadFromFile" Click="MenuItem_Click" />
+                <MenuItem Header="Load ViewInfo from PDF..." Name="View_LoadFromPDF" Click="MenuItem_Click" />
+                <Separator />
+              <MenuItem Header="Next Camera" Name="View_NextCamera" Click="MenuItem_Click" />
+              <MenuItem Header="First Camera" Name="View_FirstCamera" Click="MenuItem_Click" />
+              <MenuItem Header="Default Camera" Name="View_DefaultCamera" Click="MenuItem_Click" />
+              <Separator />
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About..." Name="Help_About" Click="MenuItem_Click" />
+            </MenuItem>
+        </Menu>
+        <DockPanel>
+          <StatusBar DockPanel.Dock="Bottom" Height="24">
+            <StatusBar.ItemsPanel>
+              <ItemsPanelTemplate>
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="140"/>
+                  </Grid.ColumnDefinitions>
+                </Grid>
+              </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem>
+              <TextBlock Name="Status_Info">Ready</TextBlock>
+            </StatusBarItem>
+            <Separator Grid.Column="1" />
+            <StatusBarItem Grid.Column="2">
+              <TextBlock Name="Status_LightScheme"></TextBlock>
+            </StatusBarItem>
+            <Separator Grid.Column="3" />
+            <StatusBarItem Grid.Column="4">
+              <TextBlock Name="Status_CameraOrtho"></TextBlock>
+            </StatusBarItem>
+            <Separator Grid.Column="5" />
+            <StatusBarItem Grid.Column="6">
+              <TextBlock Name="Status_CameraType"></TextBlock>
+            </StatusBarItem>
+            <Separator Grid.Column="7" />
+            <StatusBarItem Grid.Column="8">
+              <TextBlock Name="Status_CameraName"></TextBlock>
+            </StatusBarItem>
+          </StatusBar>
+          <custom:Render3DControl Name="OpenGLRenderControl"
+                                    DockPanel.Dock="Top"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    SceneFilename=""
+                                    ShowSceneBBox="False" 
+                                    ShowWorldAxis="True" 
+                                    ShowWorldGrid="False" 
+                                    ShowModelBBoxes="False" 
+                                    BackgroundColor="Black" 
+                                    LightingScheme="LightingScheme_Headlamp" />
+        </DockPanel>
+    </DockPanel>        
+</Window>

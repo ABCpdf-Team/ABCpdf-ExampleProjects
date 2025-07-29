@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8" />
+<title>ABCpdf SWF Export with Template</title>
+</head><body>
+<h1>ABCpdf SWF Export with Template</h1>
+<p>When you provide a SWF template while saving to a SWF file, ABCpdf generates
+(adds to the SWF file) a frame for each page in the PDF document. Each frame
+defines the data for the PDF page and contains ActionScript code to call
+ABCpdf_onPlacePage with the parameters for the PDF page. The frame does not do
+anything else. In essence, the purpose of using gotoAndStop to the appropriate
+frame is to obtain data about the corresponding PDF page through the callback
+of the ABCpdf_onPlacePage function. If ABCpdf_onPlacePage does nothing,
+nothing happens.</p>
+<p>ABCpdf_onPlacePage is entirely responsible for displaying the page content.
+The parameters for displaying the page content:</p>
+<ul><li>symbolName&mdash;the name of the symbol of the move clip</li>
+<li>m&mdash;an array of 6 numbers representing the transformation matrix needed
+for displaying the movie clip</li>
+<li>w&mdash;the width of the page</li>
+<li>h&mdash;the height of the page</li>
+<li>frameNumber&mdash;the frame number of the gotoAndStop call</li>
+<li>initFunc&mdash;the function for initializing the movie clip created for the
+page content if required (Some graphics objects can only be created using
+ActionScript.)</li></ul>
+<p>To display the page content,</p>
+<ul><li>create a movie clip from <code>symbolName</code>,</li>
+<li>call <code>initFunc</code> passing in the created movie clip for
+initialization if provided,</li>
+<li>and set the transform of the movie clip according to the provided
+transformation matrix <code>m</code>.</li></ul>
+<p>At the beginning of the ABCpdf_onPlacePage function provided in the SWF
+template in the example project, you see code for resource management (i.e.
+avoiding redoing the process if the page is already being displayed, and
+removing existing movie clip created for previously viewed page), code for
+auto-fitting the page view, and code for drawing the box of the page size.</p>
+<pre><code>function ABCpdf_onPlacePage(symbolName, m, w, h, frameNumber, initFunc) {
+
+    if(frameNumber!=templateFrames+currentPage
+        || viewPage===currentPage)
+        return;
+
+    if(pageViewMc.pdfPage)
+        pageViewMc.pdfPage.removeMovieClip();
+    pageViewMc.clear();
+    var pageMc = pageViewMc.attachMovie(symbolName, "pdfPage", pageViewMc.getNextHighestDepth());
+    if(initFunc)
+        initFunc.call(pageMc);
+
+    var xform = pageMc.transform;
+    var matrix = xform.matrix;
+    matrix.a = m[0];
+    matrix.b = m[1];
+    matrix.c = m[2];
+    matrix.d = m[3];
+    matrix.tx = m[4];
+    matrix.ty = m[5];
+    if (m[0] == 0 && m[3] == 0) {
+        var temp = w;
+        w = h;
+        h = temp;
+    }
+    if (w > pageViewMaskMc._width || h > pageViewMaskMc._height) {
+        var scale = Math.min(pageViewMaskMc._width/w, pageViewMaskMc._height/h);
+        matrix.a *= scale;
+        matrix.b *= scale;
+        matrix.c *= scale;
+        matrix.d *= scale;
+        matrix.tx *= scale;
+        matrix.ty *= scale;
+        w *= scale;
+        h *= scale;
+    }
+    var translateX = (pageViewMaskMc._width-w)/2;
+    var translateY = (pageViewMaskMc._height-h)/2;
+    matrix.tx += translateX;
+    matrix.ty += translateY;
+    xform.matrix = matrix;
+    pageViewMc.lineStyle(0);
+    pageViewMc.moveTo(translateX,translateY);
+    pageViewMc.lineTo(w+translateX,translateY);
+    pageViewMc.lineTo(w+translateX,h+translateY);
+    pageViewMc.lineTo(translateX,h+translateY);
+    pageViewMc.lineTo(translateX,translateY);
+    viewPage = currentPage;
+}
+</code></pre>
+</body></html>

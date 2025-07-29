@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 3 U (http://www.xmlspy.com) by TEAM (RENEGADE1) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Samples">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Sample">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="title"/>
+							<xs:element name="description"/>
+							<xs:element name="subject"/>
+						</xs:sequence>
+						<xs:attribute name="image" type="xs:string"/>
+						<xs:attribute name="image_id" type="xs:string"/>
+						<xs:attribute name="program" type="xs:string"/>
+						<xs:attribute name="mission" type="xs:string"/>
+						<xs:attribute name="date" type="xs:string"/>
+						<xs:attribute name="film_type" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

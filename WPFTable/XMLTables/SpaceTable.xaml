@@ -1,0 +1,149 @@
+﻿<Page  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" >
+
+    <Page.Resources>
+        <XmlDataProvider x:Key="SpaceSampleDataProvider" Source="../XMLTables/spaceSample.xml" XPath="/Samples/Sample" IsAsynchronous="False"/>
+    </Page.Resources>
+
+    <FlowDocumentPageViewer Name="DocViewer" Width="850" Height="900">
+
+        <FlowDocument Name="SpaceTable"
+            FontFamily="Arial" FontSize="14"  ColumnWidth="800"
+            IsOptimalParagraphEnabled="True" IsHyphenationEnabled="True">
+
+            <Table Name="Header" Background="LightGray" Margin="2">
+                <Table.Columns>
+                    <TableColumn/>
+                </Table.Columns>
+                <TableRowGroup>
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph FontSize="30">
+                                Conquering Space
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                </TableRowGroup>
+                <TableRowGroup>
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph FontSize="20">
+                                Apollo Program Overview
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                </TableRowGroup>
+                <TableRowGroup>
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph FontSize="14">
+                                Images and Text Courtesy of
+                                <Hyperlink NavigateUri="http://images.jsc.nasa.gov">NASA</Hyperlink>
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                </TableRowGroup>
+            </Table>
+
+            <Table Name="ItemsTable" >
+
+                <Table.Columns>
+                    <TableColumn/>
+                    <TableColumn/>
+                    <TableColumn/>
+                    <TableColumn/>
+                    <TableColumn/>
+                    <TableColumn/>
+                </Table.Columns>
+
+                <TableRowGroup DataContext="{Binding Source={StaticResource SpaceSampleDataProvider}, XPath=/Samples/Sample[1] }">
+                    <TableRow>
+                        <TableCell Background="LightGray">
+                            <Paragraph>
+                                <Image Source="{Binding XPath=@image}" />
+                            </Paragraph>
+                        </TableCell>
+                        <TableCell Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Photo ID:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=@image_id}"/>
+                                </Paragraph>
+                        </TableCell>
+                        <TableCell Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Program:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=@program}"/>
+                                </Paragraph>
+                        </TableCell>
+                        <TableCell Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Mission:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=@mission}"/>
+                                </Paragraph>
+                        </TableCell>
+                        <TableCell Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Date:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=@date}"/>
+                                </Paragraph>
+                        </TableCell>
+                        <TableCell Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Film Type:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=@film_type}"/>
+                                </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell ColumnSpan="6" Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Title:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=title}"/>
+                                </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell ColumnSpan="6" Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Description:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=description}"/>
+                                </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell ColumnSpan="6" Background="LightGray">
+                            <Paragraph FontWeight="Bold" LineHeight="26">
+                                <TextBlock Text="Subject Terms:" />
+                                </Paragraph>
+
+                            <Paragraph>
+                                <TextBlock Text="{Binding XPath=subject}"/>
+                                </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                </TableRowGroup>
+            </Table>
+        </FlowDocument>
+    </FlowDocumentPageViewer>
+</Page>

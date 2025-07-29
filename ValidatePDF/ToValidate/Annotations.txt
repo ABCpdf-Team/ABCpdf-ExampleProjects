@@ -1,0 +1,35 @@
+PDF Version: 173
+PDF Uses PDF 2.0 Deprecated Features
+ - Deprecated Feature: "ResourceElement(67).ProcSet".
+ - Deprecated Feature: "ResourceElement(72).ProcSet".
+ - Deprecated Feature: "ResourceElement(73).ProcSet".
+ - Deprecated Feature: "ResourceElement(101).ProcSet".
+ - Deprecated Feature: "ResourceElement(102).ProcSet".
+ - Deprecated Feature: "ResourceElement(103).ProcSet".
+ - Deprecated Feature: "ResourceElement(104).ProcSet".
+ - Deprecated Feature: "ResourceElement(105).ProcSet".
+ - Deprecated Feature: "ResourceElement(85).ProcSet".
+ - Deprecated Feature: "ResourceElement(84).ProcSet".
+ - Deprecated Feature: "ResourceElement(106).ProcSet".
+ - Deprecated Feature: "ResourceElement(98).ProcSet".
+ - Deprecated Feature: "ResourceElement(99).ProcSet".
+ - Deprecated Feature: "ResourceElement(97).ProcSet".
+ - Deprecated Feature: "ResourceElement(96).ProcSet".
+ - Deprecated Feature: "ResourceElement(94).ProcSet".
+ - Deprecated Feature: "ResourceElement(93).ProcSet".
+ - Deprecated Feature: "ResourceElement(95).ProcSet".
+ - Deprecated Feature: "ResourceElement(1).ProcSet".
+ - Deprecated Feature: "ResourceElement(17).ProcSet".
+ - Deprecated Feature: "ResourceElement(39).ProcSet".
+ - Deprecated Feature: "ResourceElement(51).ProcSet".
+ - Deprecated Feature: "ResourceElement(53).ProcSet".
+ - Deprecated Feature: "ResourceElement(55).ProcSet".
+
+Missing Required Entry: "Type1FontElement(83).FirstChar".
+Missing Required Entry: "Type1FontElement(83).LastChar".
+Missing Required Entry: "Type1FontElement(83).Widths".
+Missing Required Entry: "Type1FontElement(83).FontDescriptor".
+
+
+
+

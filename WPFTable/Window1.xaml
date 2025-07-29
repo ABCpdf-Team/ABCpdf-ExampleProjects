@@ -1,0 +1,29 @@
+﻿<Window x:Class="WPFTable.ExamplesWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Space Sample" Height="1000" Width="900">
+
+    <Window.Resources>
+       
+    </Window.Resources>
+
+    <StackPanel Name="MainArea">
+        <Menu >
+            <MenuItem Header="File">
+                <MenuItem Header="Save as PDF" Click="SaveAsPdf_Click" />
+                <MenuItem Header="Save as XPS" Click="SaveAsXps_Click" />
+                <MenuItem Header="Exit" Click="MenuItemExit_Click"/>
+            </MenuItem>
+            <MenuItem Header="Samples">
+                <MenuItem Header="Space" Click="Example_Click"/>
+                <MenuItem Header="Invoice" Click="Example_Click"/>
+                <MenuItem Header="Large Table" Click="Example_Click"/>
+                <MenuItem Header="Small Table" Click="Example_Click"/>
+            </MenuItem>
+        </Menu>
+        
+    </StackPanel>
+
+</Window>
+
+

@@ -1,0 +1,33 @@
+﻿<Window x:Class="Viewer3D.About"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About" Height="377.5" Width="296" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded">
+    <Grid>
+        <Label Content="Version" Height="27" HorizontalAlignment="Left" Margin="12,56,0,0" Name="label1" VerticalAlignment="Top" Width="56" />
+        <Image Height="64" HorizontalAlignment="Left" Margin="196,19,0,0" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="64" Source="/Viewer3D;component/U3DIcon.ico" />
+        <Label Content="Viewer3D" Height="28" HorizontalAlignment="Left" Margin="12,19,0,0" Name="label2" VerticalAlignment="Top" Width="134" FontWeight="Bold" />
+        <Label Height="27" HorizontalAlignment="Left" Margin="68,56,0,0" Name="Label_Viewer3DVersion" VerticalAlignment="Top" Width="72" HorizontalContentAlignment="Right" />
+        <Border BorderBrush="Silver" BorderThickness="1" Height="140" HorizontalAlignment="Left" Margin="10,146,0,0" Name="border1" VerticalAlignment="Top" Width="270" CornerRadius="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Content="3D Glue" Height="26" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Top" Width="124" />
+                <Label Content="Render Lib" Height="26" HorizontalAlignment="Left" Margin="6,26,0,0" VerticalAlignment="Top" Width="124" />
+                <Label Content="U3D Lib" Height="26" HorizontalAlignment="Left" Margin="6,56,0,0" VerticalAlignment="Top" Width="124" />
+                <Label Content="PRC Lib" Height="26" HorizontalAlignment="Left" Margin="6,82,0,0" VerticalAlignment="Top" Width="124" />
+                <Label Content="OBJ Lib" Height="26" HorizontalAlignment="Left" Margin="6,108,0,0" VerticalAlignment="Top" Width="124" />
+                <Label Height="26" HorizontalAlignment="Left" Margin="162,0,0,0" Name="Label_3DGlueVersion" VerticalAlignment="Top" Width="92" HorizontalContentAlignment="Right" />
+                <Label Height="26" HorizontalAlignment="Left" Margin="164,26,0,0" Name="Label_RenderLibVersion" VerticalAlignment="Top" Width="92" HorizontalContentAlignment="Right" />
+                <Label Height="26" HorizontalAlignment="Left" Margin="164,56,0,0" Name="Label_U3DLibVersion" VerticalAlignment="Top" Width="92" HorizontalContentAlignment="Right" />
+                <Label Height="26" HorizontalAlignment="Left" Margin="164,82,0,0" Name="Label_PRCLibVersion" VerticalAlignment="Top" Width="92" HorizontalContentAlignment="Right" />
+                <Label Height="26" HorizontalAlignment="Left" Margin="164,108,0,0" Name="Label_OBJLibVersion" VerticalAlignment="Top" Width="92" HorizontalContentAlignment="Right" />
+            </Grid>
+        </Border>
+        <Button Content="OK" Height="28" HorizontalAlignment="Left" Margin="98,311,0,0" Name="button1" VerticalAlignment="Top" Width="90" Click="button1_Click" />
+        <Label Content="OpenGL" HorizontalAlignment="Left" Margin="12,96,0,0" VerticalAlignment="Top" Width="64"/>
+        <Label Content="GLSL" HorizontalAlignment="Left" Margin="116,96,0,0" VerticalAlignment="Top" Width="44" />
+        <Label Content="Label" HorizontalAlignment="Left" Margin="68,96,0,0" Name="Label_GLVersion" VerticalAlignment="Top" Width="48" />
+        <Label Content="Label" HorizontalAlignment="Left" Margin="160,96,0,0" Name="Label_GLSLVersion" VerticalAlignment="Top" Width="48" />
+    </Grid>
+</Window>

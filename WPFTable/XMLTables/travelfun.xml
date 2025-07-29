@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="invoice.xsd">
+	<CompanyInfo Address=" 375 Old Avenue" Name="Travel Fun" State="AZ" Phone="1-468-136-6770" Zip="97110-2804" City=" Pheonix" logo="XMLTables/ImageData/travellogo.jpg"/>
+	<Customer Address="136 West 8th St" Name="Outdoors Ltd." State="WA" Phone="1-866-571-5039" City="Sant Angeles" Zip="98362"/>
+	<Order Date="2004.12.03" FOB="324" OrderNo="44" Rep="45456" TaxRate="0.05" ShippingCharge="500">
+		<Item Desc="Adventure Towel and Travel Kit" Qty="12" UnitPrice="19.23"/>
+		<Item Desc="Backpacks" Qty="36" UnitPrice="72.99"/>
+		<Item Desc="Daypacks" Qty="36" UnitPrice="37.99"/>
+		<Item Desc="First Aid / Emergency Kits" Qty="36" UnitPrice="45.88"/>
+		<Item Desc="Executive Suiter - Wheeled Luggage" Qty="12" UnitPrice="99.21"/>
+		<Item Desc="Extreme Comfort Neoprene Handwarmer" Qty="12" UnitPrice="9.65"/>
+		<Item Desc="Gear Traveling Dog Bed" Qty="3" UnitPrice="19.88"/>
+		<Item Desc="Grabber Handwarmer Heat Pack" Qty="12" UnitPrice="1.45"/>
+		<Item Desc="Hydration Packs" Qty="36" UnitPrice="32.88"/>
+		<Item Desc="Laptop Case" Qty="12" UnitPrice="29.11"/>
+		<Item Desc="Laptop Totes" Qty="4" UnitPrice="45.55"/>
+		<Item Desc="Leather Chess and Checker Game Set" Qty="12" UnitPrice="39.99"/>
+		<Item Desc="Men's Dress Shirts" Qty="32" UnitPrice="7.98"/>
+		<Item Desc="Men's Boxers" Qty="12" UnitPrice="5.99"/>
+		<Item Desc="Men's Work Shirts" Qty="12" UnitPrice="4.55"/>
+		<Item Desc="Men's Sunglasses" Qty="12" UnitPrice="9.99"/>
+		<Item Desc="Men's Belts" Qty="24" UnitPrice="12.99"/>
+		<Item Desc="Men's Briefcases" Qty="6" UnitPrice="58.99"/>
+		<Item Desc="Men's Hiking / Travel Shirts" Qty="24" UnitPrice="21.99"/>
+		<Item Desc="Men's Lightweight Jackets / Vests" Qty="24" UnitPrice="19.88"/>
+		<Item Desc="Men's Waterproof Pants" Qty="17" UnitPrice="21.32"/>
+		<Item Desc="Portable Power Source  2.22 Watt" Qty="10" UnitPrice="74.99"/>
+		<Item Desc="Rolling Trolley Luggage Bag" Qty="2" UnitPrice="289.99"/>
+		<Item Desc="Sleeping Bags" Qty="36" UnitPrice="12.05"/>
+		<Item Desc="Sleeping Pads" Qty="36" UnitPrice="9.99"/>
+		<Item Desc="Sports All-Purpose Drybag" Qty="12" UnitPrice="10.99"/>
+		<Item Desc="Sportive Shorts (for Men)" Qty="12" UnitPrice="19.65"/>
+		<Item Desc="Tents" Qty="36" UnitPrice="57.11"/>
+		<Item Desc="T-Shirt - Short Sleeve (for Men)" Qty="12" UnitPrice="11.99"/>
+		<Item Desc="Water Bottles" Qty="36" UnitPrice="3.55"/>
+	</Order>
+	<PaymentDetails Payment="Credit Card" CC="4408 0412 3456 7890" Expires="03.07.2007" Name="John Smith"/>
+</Invoice>

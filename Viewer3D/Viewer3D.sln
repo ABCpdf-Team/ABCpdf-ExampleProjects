@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viewer3D", "Viewer3D\Viewer3D.csproj", "{1D43E9DB-E55C-4399-B746-36F734CCB054}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EC57548C-A083-4C02-B7C7-CFCFBA9E03C0} = {EC57548C-A083-4C02-B7C7-CFCFBA9E03C0}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue3DUtilities", "Glue3DUtilities\Glue3DUtilities.csproj", "{EC57548C-A083-4C02-B7C7-CFCFBA9E03C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D43E9DB-E55C-4399-B746-36F734CCB054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D43E9DB-E55C-4399-B746-36F734CCB054}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D43E9DB-E55C-4399-B746-36F734CCB054}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D43E9DB-E55C-4399-B746-36F734CCB054}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC57548C-A083-4C02-B7C7-CFCFBA9E03C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC57548C-A083-4C02-B7C7-CFCFBA9E03C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC57548C-A083-4C02-B7C7-CFCFBA9E03C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC57548C-A083-4C02-B7C7-CFCFBA9E03C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14851908-5740-4510-AB08-EE2DF38F8E27}
+	EndGlobalSection
+EndGlobal

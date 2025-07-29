@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <Samples xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="spaceSample.xsd">
+	<Sample image="XMLTables\ImageData\im1.jpg" image_id="S63-15227 " mission="Apollo Program Overview" program="Apollo" date="1963-08-28" film_type="4x5">
+		<title>
+Little Joe II liftoff from launch area #3 at White Sands
+</title>
+		<description>
+Little Joe II liftoff from the Apollo Little Joe II launch area #3 at White Sands Missile Range, White Sands, New Mexico.
+</description>
+		<subject>
+LAUNCHING PADS LAUNCHING SITES LIFTOFF (LAUNCHING) LITTLE JOE II LAUNCH VEHICLE NEW MEXICO TESTING UNMANNED SPACECRAFT WHITE SANDS MISSILE RANGE
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im2.jpg" image_id="S63-15229 " mission="Apollo Program Overview" program="Apollo" date="1963-08-28" film_type="4x5">
+		<title>
+View of the liftoff of Little Joe II
+</title>
+		<description>
+View of the liftoff of Little Joe II launch vehicle at the White Sands Missile Range, New Mexico.
+</description>
+		<subject>
+APOLLO PROJECT LAUNCH VEHICLES LAUNCHING SITES LIFTOFF (LAUNCHING) NEW MEXICO SPACECRAFT WHITE SANDS MISSILE RANGE
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im5.jpg" image_id="S64-30975" mission="Apollo Program Overview" program="Apollo" date="1964-09-18" film_type="4x5">
+		<title>
+Launch of Saturn 7 at Launch Complex 37, Merritt Island launch area, Florida
+</title>
+		<description>
+View of the launch of a Saturn 7 vehicle at Launch Complex 37, Merritt Island launch area, Florida.
+</description>
+		<subject>
+APOLLO PROJECT FLORIDA LAUNCHING PADS LAUNCHING SITES LIFTOFF (LAUNCHING) SATURN LAUNCH VEHICLES TESTS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im6.jpg" image_id="S65-64380" mission="Apollo Program Overview" program="Apollo" date="1965-12-01" film_type="4x5 BW">
+		<title>
+Interior of Apollo Mission Simulator crew station
+</title>
+		<description>
+Interior view of the Apollo Mission Simulator (AMS) crew station located in bldg 5. The AMS is a primary training system which will prepare Apollo astronauts for flights. The AMS stands nearly 30 feet high and weighs approximately 40 tons. The simulator is designed to familiarize Apollo crews with equipment, crew tasks, mission procedures, and emergency flight situations.
+</description>
+		<subject>
+APOLLO PROJECT ASTRONAUT TRAINING CREW WORKSTATIONS INSTRUMENTATION SIMULATORS SPACE FLIGHT TRAINING
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im7.jpg" image_id="S66-15154" mission="Apollo Program Overview" program="Apollo" date="1966-01-01" film_type="4x5">
+		<title>
+One-twentieth size engineering model of the Apollo Lunar Excursion Module
+</title>
+		<description>
+One-twentieth size engineering model of the Apollo Lunar Excursion Module.
+</description>
+		<subject>
+APOLLO SPACECRAFT LUNAR MODULE MODELS SCALE MODELS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im8.jpg" image_id="S66-15155" mission="Apollo Program Overview" program="Apollo" date="1966-01-01" film_type="4x5">
+		<title>
+Engineering model of the Apollo Block-I Command and Service modules
+</title>
+		<description>
+One-twentieth size engineering model of the Apollo Block-I Command and Service modules.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT COMMAND MODULES MODELS SCALE (RATIO) SERVICE MODULES</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im9.jpg" image_id="S66-20410" mission="Apollo Program Overview" program="Apollo" date="1966-02-07" film_type="4x5">
+		<title>
+Nighttime view of Apollo Spacecraft 009 atop Saturn 1B launch vehicle
+</title>
+		<description>
+Nighttime view of Apollo Spacecraft 009 atop the Saturn 1B launch vehicle at Launch Complex 34 during preparations for the planned Apollo/Saturn 201 test flight.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT LAUNCHING PADS LAUNCHING SITES NIGHT PREFLIGHT OPERATIONS SATURN LAUNCH VEHICLES UNMANNED SPACECRAFT
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im10.jpg" image_id="S66-22690" mission="Apollo Program Overview" program="Apollo" date="1966-02-22" film_type="35mm">
+		<title>
+Frogmen on Apollo command module boilerplate flotation collar during recovery
+</title>
+		<description>
+Apollo command module boilerplate floats in the Atlantic Ocean during a practice recovery exercise. Frogmen in a liferaft and on the flotation collar secure the command module boilerplate for hoisting onto a nearby recovery ship. The exercise was conducted in preparation for the forthcoming Apollo-Saturn 201 (AS-201) mission.</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT SATURN LAUNCH VEHICLES UNMANNED SPACECRAFT
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im13.jpg" image_id="S66-10991" mission="Apollo Program Overview" program="Apollo" date="1966-06-01" film_type="4x5">
+		<title>
+Artist concept of Command Module/Service Module Separation
+</title>
+		<description>
+Artist concept of the Command Module/Service Module separation in the re-entry corridor. The Service Module is jettisoned after the final trajectory corrections are made, shortly before the Command Module re-enters the earth's atmosphere.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT COMMAND MODULES DRAWINGS GRAPHIC ARTS LUNAR EXPLORATION SATURN LAUNCH VEHICLES SEPARATION SERVICE MODULES VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im14.jpg" image_id="S66-10994" mission="Apollo Program Overview" program="Apollo" date="1966-06-01" film_type="4x5">
+		<title>
+Artist concept of Drogue Chute Deployment
+</title>
+		<description>
+Artist concept illustrating the drogue chute deployment as the Apollo Command Module returns to earth from a mission to the moon. The droge chutes serve to orient the Command Module properly for main chute deployment.</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT COMMAND MODULES DRAG CHUTES DRAWINGS GRAPHIC ARTS LUNAR EXPLORATION PARACHUTES SATURN LAUNCH VEHICLES SERVICE MODULES VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im15.jpg" image_id="S66-10983" mission="Apollo Program Overview" program="Apollo" date="1966-12-01" film_type="4x5">
+		<title>
+Artist concept of Apollo Lunar modules during Ascent Stage Liftoff
+</title>
+		<description>
+Artist concept illustrating the Ascent stage of liftoff of the Lunar module from the surface of the moon.</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT DRAWINGS GRAPHIC ARTS LIFTOFF (LAUNCHING) LUNAR SURFACE VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im16.jpg" image_id="S66-10988" mission="Apollo Program Overview" program="Apollo" date="1966-12-01" film_type="4x5">
+		<title>
+Artist concept of Transearth Injection of Command Module for reentry
+</title>
+		<description>
+Artist concept of Transearth Injection of the Command Module for reentry.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT COMMAND MODULES DRAWINGS GRAPHIC ARTS LUNAR EXPLORATION ORBITS VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im17.jpg" image_id="S66-10989" mission="Apollo Program Overview" program="Apollo" date="1966-12-01" film_type="4x5">
+		<title>
+Artist concept of Apollo Lunar Mission Exploration of Lunar Surface
+</title>
+		<description>
+Artist concept illustrating the Astronauts exploring the lunar surface. The Lunar Landing Module in seen in the background.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT DRAWINGS GRAPHIC ARTS LUNAR EXPLORATION LUNAR SURFACE VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im18.jpg" image_id="S66-11010" mission="Apollo Program Overview" program="Apollo" date="1966-12-01" film_type="4x5">
+		<title>
+Artist concept of translunar injection
+</title>
+		<description>
+Artist concept illustrating the Apollo translunar injection. The single J-2 engine of the Saturn S-IVB stage fires to obtain sufficient thrust to escape the pull of the earth's gravity.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT DRAWINGS GRAPHIC ARTS LUNAR EXPLORATION ORBITS SATURN LAUNCH VEHICLES VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im19.jpg" image_id="S66-11022" mission="Apollo Program Overview" program="Apollo" date="1966-12-01" film_type="4x5">
+		<title>
+Artist concept illustrating relative size of Apollo vehicles
+</title>
+		<description>
+Artist concept illustrating relative size of Apollo vehicles.
+</description>
+		<subject>
+APOLLO PROJECT APOLLO SPACECRAFT COMPARISON DRAWINGS GRAPHIC ARTS VISUAL AIDS
+</subject>
+	</Sample>
+	<Sample image="XMLTables\ImageData\im20.jpg" image_id="S67-20423" mission="Apollo Program Overview" program="Apollo" date="1967-01-01" film_type="4x5">
+		<title>
+Artist's concept of U.S. launch vehicles
+</title>
+		<description>
+Artist's concept of U.S. launch vehicles including the size of their payload capabilities.
+</description>
+		<subject>
+COMPARISON DRAWINGS GRAPHIC ARTS LAUNCH VEHICLES VISUAL AIDS
+</subject>
+	</Sample>
+</Samples>
+

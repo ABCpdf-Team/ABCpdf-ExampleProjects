@@ -1,0 +1,11 @@
+Notes:
+
+The Toolbar Icons are based on the standard Windows XP Example Toolbar.
+
+They are based on MSDN content detailing standards and design guidelines for icons on Windows XP.
+
+These articles appear to imply that one should create icons similar to the examples.
+
+However they do not explicitly state that you can use these designs.
+
+As such you should view these icons as placeholders and replace them with your own.

@@ -1,0 +1,62 @@
+﻿<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="clr-namespace:WPFTable;assembly=WPFTable"
+    Title="Large Table">
+    
+    <Page.Resources>
+        <c:TextDataProvider x:Key="InputData" FileName="text7.txt"/>
+    </Page.Resources>
+    
+    <FlowDocumentPageViewer Name="DocViewer" Width="850" Height="900">
+        <FlowDocument 
+        Name="LargeTable"
+        FontFamily="Times New Roman" FontSize="16"  ColumnWidth="800"
+        IsOptimalParagraphEnabled="True" IsHyphenationEnabled="True">
+            <Table Name="ItemsTable" CellSpacing="10">
+                <Table.Columns>
+                    <TableColumn Width="120"/>
+                    <TableColumn Width="60"/>
+                    <TableColumn Width="180"/>
+                    <TableColumn Width="100"/>
+                    <TableColumn Width="40"/>
+                    <TableColumn Width="220"/>
+                </Table.Columns>
+                <TableRowGroup Background="White" DataContext="{Binding Source={StaticResource InputData}, Path=[0]}">
+                    <TableRow>
+                        <TableCell>
+                            <Paragraph>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Columns[0]}"/>
+                            </Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Columns[1]}"/>
+                            </Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Columns[2]}"/>
+                            </Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Columns[3]}"/>
+                            </Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Columns[4]}"/>
+                            </Paragraph>
+                        </TableCell>
+                        <TableCell>
+                            <Paragraph>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Path=Columns[5]}"/>
+                            </Paragraph>
+                        </TableCell>
+                    </TableRow>
+                </TableRowGroup>
+            </Table>
+        </FlowDocument>   
+    </FlowDocumentPageViewer>
+</Page>
