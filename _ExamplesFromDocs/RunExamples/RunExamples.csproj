@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;CS0162</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;CS0162</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ExampleTests.tmp.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Brush.cs" Link="ABCpdf.Drawing\Brush.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\BuiltInFont.cs" Link="ABCpdf.Drawing\BuiltInFont.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\BuiltInFontMetrics.cs" Link="ABCpdf.Drawing\BuiltInFontMetrics.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Chart.cs" Link="ABCpdf.Drawing\Chart.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\ChartColumn.cs" Link="ABCpdf.Drawing\ChartColumn.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Color.cs" Link="ABCpdf.Drawing\Color.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\CustomPanel.cs" Link="ABCpdf.Drawing\CustomPanel.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Font.cs" Link="ABCpdf.Drawing\Font.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\FontInfoTypes.cs" Link="ABCpdf.Drawing\FontInfoTypes.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\FontMetrics.cs" Link="ABCpdf.Drawing\FontMetrics.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Graphics.cs" Link="ABCpdf.Drawing\Graphics.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\GraphicsPath.cs" Link="ABCpdf.Drawing\GraphicsPath.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Image.cs" Link="ABCpdf.Drawing\Image.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Page.cs" Link="ABCpdf.Drawing\Page.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\PageCollection.cs" Link="ABCpdf.Drawing\PageCollection.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\PDFBoundedContent.cs" Link="ABCpdf.Drawing\PDFBoundedContent.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\PDFContent.cs" Link="ABCpdf.Drawing\PDFContent.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\PDFDocument.cs" Link="ABCpdf.Drawing\PDFDocument.cs" />
+    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Pen.cs" Link="ABCpdf.Drawing\Pen.cs" />
+    <Compile Include="..\..\AdvancedGraphics\PDFBoundedContent.cs" Link="AdvancedGraphics\PDFBoundedContent.cs" />
+    <Compile Include="..\..\AdvancedGraphics\PDFContent.cs" Link="AdvancedGraphics\PDFContent.cs" />
+    <Compile Include="..\..\Annotations\NameTree.cs" Link="Annotations\NameTree.cs" />
+    <Compile Include="..\..\PDFTable\InvoiceData.cs" Link="PDFTable\InvoiceData.cs" />
+    <Compile Include="..\..\PDFTable\PDFTable.cs" Link="PDFTable\PDFTable.cs" />
+    <Compile Include="..\..\PDFTable\SpaceSampleData.cs" Link="PDFTable\SpaceSampleData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\MustRead.html" Link="ABCpdf.Drawing\Core14_AFMs\MustRead.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ABCpdf.Drawing\Core14_AFMs\" />
+    <Folder Include="AdvancedGraphics\" />
+    <Folder Include="Annotations\" />
+    <Folder Include="PDFTable\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Courier-Bold.afm" Link="ABCpdf.Drawing\Core14_AFMs\Courier-Bold.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Courier-BoldOblique.afm" Link="ABCpdf.Drawing\Core14_AFMs\Courier-BoldOblique.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Courier-Oblique.afm" Link="ABCpdf.Drawing\Core14_AFMs\Courier-Oblique.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Courier.afm" Link="ABCpdf.Drawing\Core14_AFMs\Courier.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Helvetica-Bold.afm" Link="ABCpdf.Drawing\Core14_AFMs\Helvetica-Bold.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Helvetica-BoldOblique.afm" Link="ABCpdf.Drawing\Core14_AFMs\Helvetica-BoldOblique.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Helvetica-Oblique.afm" Link="ABCpdf.Drawing\Core14_AFMs\Helvetica-Oblique.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Helvetica.afm" Link="ABCpdf.Drawing\Core14_AFMs\Helvetica.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Symbol.afm" Link="ABCpdf.Drawing\Core14_AFMs\Symbol.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Times-Bold.afm" Link="ABCpdf.Drawing\Core14_AFMs\Times-Bold.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Times-BoldItalic.afm" Link="ABCpdf.Drawing\Core14_AFMs\Times-BoldItalic.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Times-Italic.afm" Link="ABCpdf.Drawing\Core14_AFMs\Times-Italic.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Times-Roman.afm" Link="ABCpdf.Drawing\Core14_AFMs\Times-Roman.afm" />
+    <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\ZapfDingbats.afm" Link="ABCpdf.Drawing\Core14_AFMs\ZapfDingbats.afm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ABCpdf" Version="13.3.6" />
+  </ItemGroup>
+
+</Project>
