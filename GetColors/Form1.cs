@@ -25,11 +25,11 @@ using System.Net;
 using System.Xml;
 using System.Diagnostics;
 
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Objects;
-using WebSupergoo.ABCpdf13.Atoms;
-using WebSupergoo.ABCpdf13.Operations;
-using WebSupergoo.ABCpdf13.Elements;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Objects;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Operations;
+using WebSupergoo.ABCpdf14.Elements;
 using System.Net.Http.Headers;
 
 namespace GetColors {
@@ -50,9 +50,9 @@ namespace GetColors {
 		private void Form1_Activated(object sender, EventArgs e) {
 			string item = comboBox1.SelectedItem != null ? (string)comboBox1.SelectedItem : null;
 			comboBox1.Items.Clear();
-			foreach (string path in Directory.GetFiles(Root, "*.pdf", SearchOption.AllDirectories))
+			foreach (string path in Directory.GetFiles(Root, "*.pdf", SearchOption.TopDirectoryOnly))
 				comboBox1.Items.Add(path);
-			foreach (string path in Directory.GetFiles(Root, "*.eps", SearchOption.AllDirectories))
+			foreach (string path in Directory.GetFiles(Root, "*.eps", SearchOption.TopDirectoryOnly))
 				comboBox1.Items.Add(path);
 			if (comboBox1.Items.Count > 0)
 				comboBox1.SelectedIndex = item == null ? 0 : comboBox1.FindStringExact(item);
@@ -282,14 +282,15 @@ namespace GetColors {
 			ops.AddRange(OperatorCategories.TextShowing);
 			ops.AddRange(OperatorCategories.TextState);
 			ops.AddRange(OperatorCategories.XObjects);
+			ops.AddRange(OperatorCategories.PathConstruction);
+			ops.AddRange(OperatorCategories.PathPainting);
+			ops.AddRange(OperatorCategories.ClippingPaths);
 			ops.Add("gs");
 			Operators = new HashSet<string>(ops);
+			DoFormXObjects = true;
 		}
-		public SvgExporter(SvgExporter parent) : base(parent) {
-			Operators = parent.Operators;
-		}
-
-		public IndirectObject Owner { get; set; } = null;
+		private StringBuilder _path { get; set; } = new StringBuilder();
+		private double _x = 0, _y = 0;
 		public StringBuilder Svg { get; set; } = new StringBuilder();
 
 		public TimeSpan Scan(Doc doc) {
@@ -304,7 +305,6 @@ namespace GetColors {
 				Svg.AppendLine($"<svg width=\"{w}\" height=\"{h}\" x=\"0\" y=\"0\" version=\"1.1\" baseProfile=\"full\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 -{h} {w} {h}\">");
 				Svg.AppendLine($"\t<rect x=\"0\" y=\"{-h}\" width=\"{w}\" height=\"{h}\" fill=\"seashell\" />");
 			}
-			Owner = page;
 			Process(page, contents);
 			if (topLevel)
 				Svg.AppendLine($"</svg>");
@@ -313,28 +313,94 @@ namespace GetColors {
 		}
 
 		public override void ProcessItem(IndirectObject owner, ArrayAtom contents, string op, int pos) {
+			double GetDbl(int idx) {
+				return Atom.GetDouble(contents[pos - idx]);
+			}
+			string GetTransform() {
+				var s = State.CTM;
+				if (s == null || s.IsIdentity) return "";
+				var el = s.Elements;
+				return $"transform =\"matrix({el[0]}, {el[1]}, {el[2]}, {-el[3]}, {el[4]}, {-el[5]})\"";
+			}
 			base.ProcessItem(owner, contents, op, pos);
-			if (op == "Do") {
-				string name = ((NameAtom)contents[pos - 1]).Text;
-				FormXObject xobj = Resources.GetResource(owner, ResourceType.XObject, name).Object as FormXObject;
-				if (xobj == null)
-					return;
-				byte[] data = new byte[xobj.CopyDecompressedData()];
-				xobj.CopyDecompressedData(data);
-				ArrayAtom array = ArrayAtom.FromContentStream(data);
-				SvgExporter svg = new SvgExporter(this);
-				svg.State.CTM.SetTransform(State.CTM);
-				if (xobj.Matrix != null)
-					svg.State.CTM.PostMultiply(xobj.Matrix);
-				svg.Svg = Svg;
-				svg.Owner = xobj;
-				svg.Process(xobj, array);
+			switch (op) {
+				case "m":
+					_x = GetDbl(2); _y = GetDbl(1);
+					_path.Append($"M{_x} {_y} ");
+					break;
+				case "l":
+					_x = GetDbl(2); _y = GetDbl(1);
+					_path.Append($"L{_x} {_y} ");
+					break;
+				case "c":
+					_path.Append($"C{GetDbl(6)} {GetDbl(5)} {GetDbl(4)} {GetDbl(3)} {GetDbl(2)} {GetDbl(1)} ");
+					_x = GetDbl(2); _y = GetDbl(1);
+					break;
+				case "v":
+					_path.Append($"C{_x} {_y} {GetDbl(4)} {GetDbl(3)} {GetDbl(2)} {GetDbl(1)} ");
+					_x = GetDbl(2); _y = GetDbl(1);
+					break;
+				case "y":
+					_path.Append($"C{GetDbl(4)} {GetDbl(3)} {GetDbl(4)} {GetDbl(3)} {GetDbl(2)} {GetDbl(1)} ");
+					_x = GetDbl(2); _y = GetDbl(1);
+					break;
+				case "h":
+					_path.Append($"Z ");
+					break;
+				case "re":
+					_x = GetDbl(4); _y = GetDbl(3);
+					double w = GetDbl(2), h = GetDbl(1);
+					_path.Append($"M{_x} {_y} L{_x + w} {_y} L{_x + w} {_y + h} L{_x} {_y + h} Z ");
+					break;
+				case "S":
+					Svg.AppendLine($"\t<path d=\"{_path}\" fill=\"none\" stroke=\"blue\" />");
+					_path.Clear();
+					break;
+				case "s":
+					Svg.AppendLine($"\t<path d=\"{_path}Z\" fill=\"none\" stroke=\"blue\" />");
+					_path.Clear();
+					break;
+				case "f":
+				case "F":
+					Svg.AppendLine($"\t<path d=\"{_path}Z\" fill=\"red\" stroke=\"none\" {GetTransform()}/>");
+					_path.Clear();
+					break;
+				case "f*":
+					Svg.AppendLine($"\t<path d=\"{_path}Z\" fill=\"red\" fill-rule=\"evenodd\" stroke=\"none\" {GetTransform()}/>");
+					_path.Clear();
+					break;
+				case "B":
+					Svg.AppendLine($"\t<path d=\"{_path}\" fill=\"red\" stroke=\"blue\" {GetTransform()}/>");
+					_path.Clear();
+					break;
+				case "B*":
+					Svg.AppendLine($"\t<path d=\"{_path}\" fill=\"red\" fill-rule=\"evenodd\" stroke=\"blue\" {GetTransform()}/>");
+					_path.Clear();
+					break;
+				case "b":
+					Svg.AppendLine($"\t<path d=\"{_path}Z\" fill=\"red\" stroke=\"blue\" {GetTransform()}/>");
+					_path.Clear();
+					break;
+				case "b*":
+					Svg.AppendLine($"\t<path d=\"{_path}Z\" fill=\"red\" fill-rule=\"evenodd\" stroke=\"blue\" {GetTransform()}/>");
+					_path.Clear();
+					break;
+				case "n":
+					break;
+				case "W":
+					// nonzero clipping path not supported here
+					_path.Clear();
+					break;
+				case "W*":
+					// evenodd clipping path not supported here
+					_path.Clear();
+					break;
 			}
 		}
 
 		public override void ShowText(List<int> codes, List<int> widths, List<double> advances, double advanceTotal, StringBuilder text, List<string> strings, bool vertical) {
 			GraphicsState state = State;
-			FontObject font = (FontObject)Resources.GetResource(Owner, ResourceType.Font, state.TextFont).Object;
+			FontObject font = (FontObject)Resources.GetResource(Owners.Peek(), ResourceType.Font, state.TextFont).Object;
 			double[] saved = Text.TextMatrix.Elements;
 			string comment = VetText(string.Join("", text.ToString())).Replace("--", "\u2013\u2013"); // n-dash characters
 			Svg.AppendLine($"\t<g><!-- {WebUtility.HtmlEncode(comment)} -->");

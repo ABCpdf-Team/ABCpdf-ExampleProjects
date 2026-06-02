@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ABCpdf" Version="13.*" />
+    <PackageReference Include="ABCpdf" Version="14.*" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.4" />
   </ItemGroup>
 

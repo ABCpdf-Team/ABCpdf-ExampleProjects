@@ -28,6 +28,8 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+	<LangVersion>latest</LangVersion>
+    <LangVersion>latest</LangVersion>
     <OldToolsVersion>2.0</OldToolsVersion>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
@@ -142,9 +144,16 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ABCpdf">
-      <Version>13.*</Version>
-    </PackageReference>
+    <ProjectReference Include="..\..\ABCpdf.NET4\ABCpdf NET.csproj">
+      <Project>{f5afc868-f06e-482a-a9b4-78383f604b06}</Project>
+      <Name>ABCpdf NET</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\ABCpdfDLL\Current\ABCpdf14-64.dll">
+      <Link>ABCpdf14-64.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

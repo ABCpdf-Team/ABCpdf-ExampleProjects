@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -16,7 +16,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Diagnostics;
-using WebSupergoo.ABCpdf13;
+using WebSupergoo.ABCpdf14;
 
 
 namespace PDFTableExamples
@@ -732,12 +732,15 @@ namespace PDFTableExamples
 
 			if (RepeatHeader) {
 				int posX = mPos.X;
-				MoveRowToNextPage(mHeaderObjects, GetParentTopBounds() - mHeaderPos.PosY, false);
-				if (FrameHeader)
-					FrameRow(mPos.Y);
+				if (mHeaderPos != null) {
+					MoveRowToNextPage(mHeaderObjects, GetParentTopBounds() - mHeaderPos.PosY, false);
+					if (FrameHeader)
+						FrameRow(mPos.Y);
+				}
 				NextRow();
 				mPos.X = posX;
-				headerOffset = mRowPositions[mPos.Y-1].Top.PosY - mRowPositions[mPos.Y-1].Bottom.PosY;
+				var position = mPos.Y > 0 ? mRowPositions[mPos.Y - 1] : null;
+				headerOffset = position != null ? position.Top.PosY - position.Bottom.PosY : 0;
 			}
 
 			MoveRowToNextPage(oldRowObjects, GetParentTopBounds() - oldRowTop.PosY - headerOffset, true);

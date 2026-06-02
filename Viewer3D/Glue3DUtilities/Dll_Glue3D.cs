@@ -1,5 +1,5 @@
 ﻿// ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -34,7 +34,7 @@ namespace Glue3DUtilities {
 			// check if 32 or 64 bit by getting the size of the IntPtr
 			Is64Bit = IntPtr.Size != 4;
 			// verify minimum needed version
-			Version minVersion = new Version(13, 0, 0); // ABCpdf13
+			Version minVersion = new Version(14, 0, 0); // ABCpdf14
 			Version glue3DVersion;
 			Dll_Glue3D.GetLibraryVersion((int)WebSupergoo.ELibrary.Lib_Glue3D, out glue3DVersion);
 			if (!Utilities.IsVersionOk(minVersion, glue3DVersion, false, false)) // it might be a good idea to compare for exact versions to avoid interface problems
@@ -502,8 +502,8 @@ namespace Glue3DUtilities {
 		/// </summary>
 		private static class Impl {
 			private const CallingConvention DllApi = Static.DllApi;
-			private const string Dll32Name = "3DGlue13-32.dll"; // ABCpdf13
-			private const string Dll64Name = "3DGlue13-64.dll"; // ABCpdf13
+			private const string Dll32Name = "3DGlue14-32.dll"; // ABCpdf14
+			private const string Dll64Name = "3DGlue14-64.dll"; // ABCpdf14
 
 #region VersionInfo
 

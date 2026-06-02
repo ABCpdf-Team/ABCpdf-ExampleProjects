@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -16,9 +16,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using WebSupergoo.ABCpdf13;
+using WebSupergoo.ABCpdf14;
 
-namespace WebSupergoo.ABCpdf13.Drawing {
+namespace WebSupergoo.ABCpdf14.Drawing {
 	/// <summary>Rectangle in double precision.</summary>
 	[StructLayout(LayoutKind.Auto)]
 	internal struct PDFRect {

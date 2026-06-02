@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WebSupergoo")]
 [assembly: AssemblyProduct("ABCpdf")]
-[assembly: AssemblyCopyright("Copyright © WebSupergoo 2010-2024")]
+[assembly: AssemblyCopyright("Copyright © WebSupergoo 2010-2025")]
 [assembly: AssemblyTrademark("WebSupergoo")]
 [assembly: AssemblyCulture("")]
 

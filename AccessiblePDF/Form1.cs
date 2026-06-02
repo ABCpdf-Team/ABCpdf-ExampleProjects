@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2026 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -20,12 +20,12 @@ using System.IO;
 using System.Text;
 using System.Linq;
 
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Objects;
-using WebSupergoo.ABCpdf13.Atoms;
-using WebSupergoo.ABCpdf13.Operations;
-using WebSupergoo.ABCpdf13.Elements;
-using WebSupergoo.ABCpdf13.Operations.Accessibility;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Objects;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Operations;
+using WebSupergoo.ABCpdf14.Elements;
+using WebSupergoo.ABCpdf14.Operations.Accessibility;
 using WebSupergoo.TableDetection;
 
 
@@ -49,11 +49,12 @@ namespace AccessiblePDF {
 		private Button button10;
 		private Button button11;
 		private Button button12;
+        private Button button13;
 
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container components = null;
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.Container components = null;
 
 		public Form1() {
 			//
@@ -100,6 +101,7 @@ namespace AccessiblePDF {
 			this.button10 = new System.Windows.Forms.Button();
 			this.button11 = new System.Windows.Forms.Button();
 			this.button12 = new System.Windows.Forms.Button();
+			this.button13 = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// button1
@@ -237,13 +239,23 @@ namespace AccessiblePDF {
 			this.button12.Name = "button12";
 			this.button12.Size = new System.Drawing.Size(256, 33);
 			this.button12.TabIndex = 16;
-			this.button12.Text = "Add Tagged Content";
+			this.button12.Text = "Add Tagged Content 1";
 			this.button12.Click += new System.EventHandler(this.button12_Click);
+			// 
+			// button13
+			// 
+			this.button13.Location = new System.Drawing.Point(301, 404);
+			this.button13.Name = "button13";
+			this.button13.Size = new System.Drawing.Size(256, 33);
+			this.button13.TabIndex = 17;
+			this.button13.Text = "Add Tagged Content 2";
+			this.button13.Click += new System.EventHandler(this.button13_Click);
 			// 
 			// Form1
 			// 
 			this.AutoScaleBaseSize = new System.Drawing.Size(8, 19);
 			this.ClientSize = new System.Drawing.Size(881, 626);
+			this.Controls.Add(this.button13);
 			this.Controls.Add(this.button12);
 			this.Controls.Add(this.button11);
 			this.Controls.Add(this.button10);
@@ -828,210 +840,101 @@ namespace AccessiblePDF {
 			string theBase = Directory.GetCurrentDirectory();
 			string theRez = Directory.GetParent(theBase).Parent.FullName + "\\";
 
-			AddTaggedContent(Path.Combine(theRez, "_Flowers.pdf"), Path.Combine(theRez, "A-add-tagged-content.pdf"));
+			AddTaggedContent1(Path.Combine(theRez, "A-add-tagged-content.pdf"));
 		}
 
-		private static void AddTaggedContent(string src, string dst) {
-			using (Doc doc = new Doc()) {
-				doc.Read(src);
-
-				Page page = null;
-				StructureElementElement root = null;
-				bool addToExistingPage = true, addToNewPage = true, addStampToExistingPage = true;
-
-				// if there is no structure then add one
-				var cat = doc.ObjectSoup.Catalog;
-				if (Atom.GetItem(cat.Atom, "StructTreeRoot") == null) {
-					int tree = doc.AddObject("<< /Nums [] >>");
-					int roles = doc.AddObject("<< /Article /Art /CustomImageTag /Figure /CustomTextTag /Sect /NormalParagraphStyle /P >>");
-					int document = doc.AddObject("<< /Lang (en-US) /S /Document >>");
-					int parents = doc.AddObject("<< /ParentTreeNextKey 0 /Type /StructTreeRoot >>");
-					Atom.SetItem(cat.Atom, "MarkInfo", Atom.FromString("<< /Marked true >>"));
-					Atom.SetItem(cat.Atom, "ViewerPreferences", Atom.FromString("<< /Direction /L2R >>"));
-					Atom.SetItem(cat.Atom, "StructTreeRoot", new RefAtom(cat.Soup[parents]));
-					Atom.SetItem(cat.Soup[parents].Atom, "K", new RefAtom(cat.Soup[document]));
-					Atom.SetItem(cat.Soup[parents].Atom, "ParentTree", new RefAtom(cat.Soup[tree]));
-					Atom.SetItem(cat.Soup[parents].Atom, "RoleMap", new RefAtom(cat.Soup[roles]));
-					Atom.SetItem(cat.Soup[document].Atom, "P", new RefAtom(cat.Soup[parents]));
-					addToExistingPage = false;
-				}
-
-				if (addToExistingPage || addToNewPage) {
-					// find insertion point at end of structure
-					var tags = new Structure(doc);
-					var elements = tags.FindElementsByType("Document");
-					Debug.Assert(elements.Count == 1);
-					root = elements[0];
-					if (root.EntryK != null && root.EntryK.Count > 0) {
-						var last = (StructureElementElement)root.EntryK[root.EntryK.Count - 1];
-						page = last.GetPage(tags); // NB lastTag.EntryP points to parent element
-					}
-				}
-
-				if (addToExistingPage) {
-					int firstID = GetNextMcid(page), nextID = firstID;
-
-					// create some content and add to page
-					doc.Page = page.ID;
-					doc.Rect.SetRect(0, 0, doc.MediaBox.Width, 150);
-					doc.TextStyle.HPos = 0.5;
-					doc.TextStyle.Size = 24;
-					StartTag(page, "Span", ref nextID);
-					doc.AddText("Some new additional content for the page.\r\n");
-					EndTag(page);
-					StartTag(page, "Span", ref nextID);
-					doc.AddText("Continued here as we have more content.");
-					EndTag(page);
-
-					// create accessibility tag for content and link into structure
-					var para = MakeElement("P", root);
-					for (int i = firstID; i < nextID; i++)
-						AddKid(para, i);
-					AddKid(root, para);
-
-					// update parent tree
-					// we pass all items that have kids that are tag IDs
-					// we pass them in the same order as they were created
-					var pg = new PageObjectElement(page);
-					AddPageItemsToTree(doc, pg, para);
-				}
-
-				if (addToNewPage) {
-					// add some content to a new page
+		private static void AddTaggedContent1(string dst) {
+			using (var doc = new Doc()) {
+				doc.Font = doc.EmbedFont("Arial");
+				doc.TextStyle.Size = 20;
+				doc.Rect.Inset(50, 50);
+				var sb = new StringBuilder();
+				sb.AppendLine("<ul>");
+				foreach (var color in Enum.GetNames(typeof(System.Drawing.KnownColor)))
+					sb.AppendLine($"<li>{color}</li>");
+				sb.AppendLine("</ul>");
+				doc.TextStyle.AutoTag = true;
+				doc.Tag.Open("P"); // put our content inside a paragraph
+				int id = doc.AddTextStyled(sb.ToString());
+				doc.FrameRect();
+				while (true) {
+					var tl = (TextLayer)doc.ObjectSoup[id];
+					if (!tl.Truncated)
+						break;
 					doc.Page = doc.AddPage();
-					doc.Rect.String = doc.MediaBox.String;
-					doc.Rect.Inset(72, 72);
-					doc.TextStyle.HPos = 0.5;
-
-					int nextID = 0; // there are no MCIDs on an empty page
-					page = (Page)doc.ObjectSoup[doc.Page];
-
-					int s1 = StartTag(page, "Span", ref nextID);
-					doc.AddText("Div one paragraph one.\r\n");
-					EndTag(page);
-					int s2 = StartTag(page, "Span", ref nextID);
-					doc.AddText("Div one paragraph two.\r\n");
-					EndTag(page);
-					int s3 = StartTag(page, "Span", ref nextID);
-					doc.AddText("Div two paragraph one.\r\n");
-					EndTag(page);
-					int s4 = StartTag(page, "Span", ref nextID);
-					doc.AddText("Div two paragraph two.\r\n");
-					EndTag(page);
-
-					// create accessibility tags for content and link into structure
-					var sect = AddKid(root, MakeElement("Sect", root));
-					var div = AddKid(sect, MakeElement("Div", root));
-					var p1 = AddKid(div, MakeElement("P", root));
-					AddKid(p1, s1);
-					AddKid(p1, s2);
-					var p2 = AddKid(div, MakeElement("P", root));
-					AddKid(p2, s3);
-					AddKid(p2, s4);
-					AddKid(root, sect);
-
-					// update parent tree
-					// we pass all items that have kids that are tag IDs
-					// we pass them in the same order as they were created
-					var pg = new PageObjectElement(page);
-					pg = AddPageItemsToTree(doc, pg, p1, p2);
+					id = doc.AddTextStyled("", id);
+					doc.FrameRect();
 				}
-
-				if (addStampToExistingPage) {
-					page = (Page)doc.ObjectSoup[doc.Page];
-
-					doc.TextStyle.HPos = 0;
-					var stamp = new StampAnnotation(doc, XRect.FromLbwh(200, 400, 100, 40), "SECRET", XColor.FromRgb(255, 0, 0));
-
-					// create accessibility tag for annotation and link into structure
-					var figure = MakeElement("Figure", root);
-					figure.EntryAlt = "Classification: Secret";
-					AddKid(root, figure);
-					AddKid(figure, stamp, page);
-
-					var tags = new Structure(doc);
-					tags.ParentTree.AddStructParent(stamp, figure.Object);
-				}
-
+				doc.Tag.Close("P");
 				doc.Save(dst);
 			}
 		}
 
-		private static int GetNextMcid(Page page) {
-			var sp = new Structure.StructParent(page, page);
-			sp.LoadMCIDs();
-			var mcids = sp.MCIDs.Keys;
-			return mcids.Count > 0 ? mcids.Max() + 1 : 0;
+		private void button13_Click(object sender, EventArgs e) {
+			string theBase = Directory.GetCurrentDirectory();
+			string theRez = Directory.GetParent(theBase).Parent.FullName + "\\";
+
+			AddTaggedContent2(Path.Combine(theRez, "_Flowers.pdf"), Path.Combine(theRez, "B-add-tagged-content.pdf"));
 		}
 
-		static int StartTag(Page page, string type, ref int mcid) {
-			page.AddLayer($" /{type} << /MCID {mcid} >> BDC ");
-			return mcid++;
-		}
+		private static void AddTaggedContent2(string src, string dst) {
+			using (var doc = new Doc()) {
+				bool doRead = true, addToExistingPage = true, addToNewPage = true, addStampToExistingPage = true;
+				if (doRead)
+					doc.Read(src);
 
-		static void EndTag(Page page) {
-			page.AddLayer($" EMC ");
-		}
-
-		static StructureElementElement MakeElement(string type, Element relation) {
-			var item = new StructureElementElement(relation);
-			item.EntryType = "StructElem"; // optional entry
-			item.EntryS = type;
-			return item;
-		}
-
-		static void AddKid(StructureElementElement parent, int mcid) {
-			if (parent.EntryK == null)
-				parent.EntryK = new ArrayElement<Element>(parent);
-			parent.EntryK.Add(new Element(new NumAtom(mcid), parent.Host));
-		}
-
-		static void AddKid(StructureElementElement parent, IndirectObject obj, Page page) {
-			if (parent.EntryK == null)
-				parent.EntryK = new ArrayElement<Element>(parent);
-			var objr = new ObjectReferenceElement(parent);
-			objr.EntryType = "OBJR";
-			objr.EntryObj = new Element(obj);
-			objr.EntryPg = new PageObjectElement(page);
-			parent.EntryK.Add(objr);
-		}
-
-		static StructureElementElement AddKid(StructureElementElement parent, StructureElementElement kid) {
-			kid.SetParent(parent);
-			return kid;
-		}
-
-		private static PageObjectElement AddPageItemsToTree(Doc doc, PageObjectElement page, params StructureElementElement[] elements) {
-			var cat = new CatalogElement(doc.ObjectSoup.Catalog);
-			var parentTree = cat.EntryStructTreeRoot.EntryParentTree;
-			var tree = new NumberTree<Element>(parentTree);
-			ArrayAtom array = null;
-			if (page.EntryStructParents == null) {
-				int id = cat.EntryStructTreeRoot.EntryParentTreeNextKey.Value;
-				cat.EntryStructTreeRoot.EntryParentTreeNextKey = id + 1;
-				page.EntryStructParents = id;
-				array = new ArrayAtom();
-				tree[id] = new Element(array, cat.Host);
-			}
-			else {
-				int id = page.EntryStructParents.Value;
-				var e = tree[id];
-				array = e.ArrayAtom;
-				// add some Pg entries because PAC is not very good at this
-				foreach (var item in array) {
-					var se = new StructureElementElement(item, cat.Host);
-					if (se.EntryK != null)
-						se.EntryPg = page;
+				Structure structure = new Structure(doc);
+				structure.CreateAsRequired();
+				if (string.IsNullOrEmpty(structure.Title))
+					structure.Title = "Tagged Document"; // PDF/UA requires a title
+				if (structure.Root.EntryK == null || structure.Root.EntryK.Count == 0) {
+					var d = structure.Root.AddKid("Document");
+					d.EntryLang = "en-US";
+					addToExistingPage = false;
 				}
-			}
-			foreach (var element in elements) {
-				foreach (var k in element.EntryK) {
-					if (k.NumAtom != null)
-						array.Add(new RefAtom(element.Object));
+
+				doc.Font = doc.EmbedFont("Arial", LanguageType.Unicode, false, true, false);
+				doc.TextStyle.Size = 24;
+				if (addToExistingPage) {
+					doc.Rect.SetRect(0, 0, doc.MediaBox.Width, 150);
+					doc.TextStyle.HPos = 0.5;
+					doc.Tag.Open("P", "Span");
+					doc.AddText("Some new additional content for the page.\r\n");
+					doc.Tag.CloseOpen("Span");
+					doc.AddText("Continued here as we have more content.");
+					doc.Tag.Close("Span", "P");
 				}
-				element.EntryPg = page;
+				if (addToNewPage) {
+					doc.Page = doc.AddPage();
+					doc.Rect.String = doc.MediaBox.String;
+					doc.Rect.Inset(72, 72);
+					doc.TextStyle.HPos = 0;
+					doc.Tag.Open("Sect", "Div", "P");
+					doc.AddText("Div one paragraph one.\r\n");
+					doc.Tag.CloseOpen("P");
+					doc.AddText("Div one paragraph two.\r\n");
+					doc.Tag.Close("P", "Div");
+					doc.Tag.Open("Div", "P");
+					doc.AddText("Div two paragraph one.\r\n");
+					doc.Tag.CloseOpen("P");
+					doc.AddText("Div two paragraph two.\r\n");
+					doc.Tag.Close("P", "Div", "Sect");
+				}
+				if (addStampToExistingPage) {
+					doc.TextStyle.HPos = 0;
+					if (doc.Page == 0)
+						doc.Page = doc.AddPage();
+					doc.Tag.Roles["RubberStamp"] = "Annot";
+					doc.Tag.Classes["RedBorder"] = Atom.FromString("<< /O /Layout /BorderColor [1 0 0] /BorderStyle /Solid >>");
+					var graphic = doc.Tag.MakeTag("RubberStamp");
+					graphic.Attributes = new DictAtom();
+					graphic.Attributes["Alt"] = new StringAtom("Classification: Secret");
+					graphic.Attributes["C"] = new NameAtom("RedBorder");
+					graphic.Object = new StampAnnotation(doc, XRect.FromLbwh(200, 400, 100, 40), "SECRET", XColor.FromRgb(255, 0, 0));
+					doc.Tag.OpenClose(graphic);
+				}
+				doc.Save(dst);
 			}
-			return page;
 		}
 	}
 

@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -13,8 +13,9 @@
 
 using System;
 using System.IO;
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Objects;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Objects;
 
 
 namespace TaggedPDF {
@@ -32,55 +33,76 @@ namespace TaggedPDF {
 		[STAThread]
 		static void Main(string[] args) {
 			string theBase = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-			string theIn = theBase + @"\Input\";
-			string theOut = theBase + @"\Output\";
+			string srcDir = Path.Combine(theBase, "Input");
+			string dstDir = Path.Combine(theBase, "Output");
 
 			// simple example first
-			SimpleExample(theIn, theOut);
+			SimpleExample(srcDir, dstDir);
 
 			// then xml based example
-			string[] theFiles = Directory.GetFiles(theIn);
-			foreach (string inFile in theFiles) {
-				string outFile = theOut + Path.GetFileNameWithoutExtension(inFile) + ".pdf";
-				XmlConverter converter = new XmlConverter();
-				converter.Convert(inFile, outFile);
-			}
+			string[] files = Directory.GetFiles(srcDir);
+			foreach (string file in files)
+				XmlExample(file, dstDir);
 		}
 
 		/// <summary>
-		/// Example of a dynamically created tagged pdf document  
+		/// Example of a simple dynamically created tagged pdf document.
 		/// </summary>
-		static public void SimpleExample(string inputDirectory, string outputDirectory) {
+		static public void SimpleExample(string srcDir, string dstDir) {
 			// Create new doc and tagged content for it
-			Doc theDoc = new Doc();
-			TaggedContent theContent = new TaggedContent(theDoc);
+			using var doc = new Doc();
 
 			//Add a container tag
-			theContent.BeginTaggedItem("Container");
+			doc.Tag.Open("Container");
 
 			//Add a paragraph of text
-			theDoc.Rect.Inset(40, 40);
-			theDoc.FontSize = 20;
-			theContent.AddTaggedText("P", "Tagged PDF (PDF 1.4) is a stylized use of PDF that builds on the logical structure framework described in Section 10.6, “Logical Structure.” It defines a set of standard structure types and attributes that allow page content (text, graphics, andimages) to be extracted and reused for other purposes.");
+			doc.Rect.Inset(40, 40);
+			doc.FontSize = 20;
+			doc.Tag.Open("P");
+			doc.AddText("Tagged PDF (PDF 1.4) is a stylized use of PDF that builds on the logical structure framework described in Section 10.6, “Logical Structure.” It defines a set of standard structure types and attributes that allow page content (text, graphics, andimages) to be extracted and reused for other purposes.");
+			doc.Tag.Close("P");
 
 			//Add image
-			theDoc.Rect.String = "300 100 300 100";
-			theContent.AddTaggedImage("Image", inputDirectory + @"images\aster1.jpg");
+			doc.Rect.String = "300 100 300 100";
+			using var img = XImage.FromFile(Path.Combine(srcDir, @"images\aster1.jpg"), null);
+			doc.Rect.SetRect(100, 100, img.Width, img.Height);
+			var figure = doc.Tag.MakeTag("Image");
+			figure.Attributes = new DictAtom();
+			figure.Attributes["Alt"] = new StringAtom("A flower.");
+			doc.Tag.Open(figure);
+			doc.AddImageObject(img, true);
+			doc.Tag.Close(figure.Type);
 
 			//Add some rotated text marked with header tag (H1)
-			theDoc.Rect.String = theDoc.MediaBox.String;
-			theDoc.Rect.Magnify(0.5, 0.5);
-			theDoc.FontSize = 30;
-			theDoc.Transform.Rotate(45, theDoc.Pos.X, theDoc.Pos.Y);
-			theContent.AddTaggedText("H1", "Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.");
-			theDoc.Transform.Reset();
+			doc.Rect.String = doc.MediaBox.String;
+			doc.Rect.Magnify(0.5, 0.5);
+			doc.FontSize = 30;
+			doc.Transform.Rotate(45, doc.Pos.X, doc.Pos.Y);
+			doc.Tag.Open("H1");
+			doc.AddText("Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.");
+			doc.Transform.Reset();
+			doc.Tag.Close("H1");
 
 			//Close container
-			theContent.EndTaggedItem();
+			doc.Tag.Close("Container");
 
 			// Dump tagged content and save pdf file
-			theContent.AddToDoc();
-			theDoc.Save(outputDirectory + "Simple.pdf");
+			doc.Save(Path.Combine(dstDir, "Simple.pdf"));
+			var st = doc.Tag.GetStructure();
+			st.UpdateActualText(true, true, " ");
+			File.WriteAllText(Path.Combine(dstDir, "Simple.txt"), st.ExtractStructure().ToString());
+		}
+
+		/// <summary>
+		/// Example of a dynamically created tagged pdf document read from XML. 
+		/// </summary>
+		static public void XmlExample(string inFile, string dstDir) {
+			string name = Path.GetFileNameWithoutExtension(inFile);
+			using var doc = XmlConverter.Create(inFile);
+			doc.Save(Path.Combine(dstDir, name + ".pdf"));
+			var st = doc.Tag.GetStructure();
+			st.UpdateActualText(true, true, " ");
+			File.WriteAllText(Path.Combine(dstDir, name + ".txt"), st.ExtractStructure().ToString());
 		}
 	}
 }

@@ -77,7 +77,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ABCpdf" Version="13.3.6" />
+    <PackageReference Include="ABCpdf" Version="14.0.0" />
   </ItemGroup>
 
 </Project>

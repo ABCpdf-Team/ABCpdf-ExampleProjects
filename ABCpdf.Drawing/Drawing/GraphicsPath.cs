@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -13,7 +13,7 @@
 
 using System;
 
-namespace WebSupergoo.ABCpdf13.Drawing.Drawing2D {
+namespace WebSupergoo.ABCpdf14.Drawing.Drawing2D {
 	#region GraphicsPath
 	/// <summary>Represents a series of connected lines and curves. This class cannot be inherited.</summary>
 	public sealed class GraphicsPath {

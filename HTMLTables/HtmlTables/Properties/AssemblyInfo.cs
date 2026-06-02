@@ -1,5 +1,5 @@
 ﻿// ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WebSupergoo")]
 [assembly: AssemblyProduct("HtmlTables")]
-[assembly: AssemblyCopyright("Copyright © WebSupergoo 2011-2024")]
+[assembly: AssemblyCopyright("Copyright © WebSupergoo 2011-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

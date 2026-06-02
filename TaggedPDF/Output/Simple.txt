@@ -1,0 +1,17 @@
+<Root ObjID="24">
+	<Document ObjID="26">
+		<Container PageNumber="1" ObjID="27">
+			<P PageNumber="1" ObjID="28">
+				<ActualText>Tagged PDF (PDF 1.4) is a stylized use of PDF that builds on the logical structure framework described in Section 10.6, “Logical Structure.” It defines a set of standard structure types and attributes that allow page content (text, graphics, andimages) to be extracted and reused for other purposes.</ActualText>
+				<MCID ID="0" />
+			</P>
+			<Image PageNumber="1" ObjID="29">
+				<MCID ID="1" />
+			</Image>
+			<H1 PageNumber="1" ObjID="30">
+				<ActualText>Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</ActualText>
+				<MCID ID="2" />
+			</H1>
+		</Container>
+	</Document>
+</Root>

@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -14,14 +14,16 @@
 using System;
 using System.Xml;
 using System.Collections.Generic;
-using WebSupergoo.ABCpdf13;
 using System.IO;
 using System.Web;
 using System.Globalization;
 
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Atoms;
+
 namespace TaggedPDF {
 	/// <summary>
-	/// Parses xml files and converts them to the tagged pdf
+	/// Parses xml files and converts them to tagged pdf
 	/// </summary>
 	public class XmlConverter {
 		protected enum TextFormat {
@@ -41,10 +43,6 @@ namespace TaggedPDF {
 		}
 		protected sealed class BackgroundElement {
 			/// <summary>
-			/// Tagged item
-			/// </summary>
-			public StructureElement TaggedItem;
-			/// <summary>
 			/// Rectangle
 			/// </summary>
 			public string Rect;
@@ -60,8 +58,7 @@ namespace TaggedPDF {
 			/// <summary>
 			/// Constructor
 			/// </summary>
-			public BackgroundElement(StructureElement taggedItem) {
-				TaggedItem = taggedItem;
+			public BackgroundElement() {
 			}
 		}
 
@@ -70,10 +67,6 @@ namespace TaggedPDF {
 		/// Base directory for resolving relative URIs
 		/// </summary>
 		private string mBaseDirectory;
-		/// <summary>
-		/// Tagged pdf content of generated file
-		/// </summary>
-		protected TaggedContent mContent;
 		/// <summary>
 		/// Parent document
 		/// </summary>
@@ -122,6 +115,44 @@ namespace TaggedPDF {
 		/// Height of the current line
 		/// </summary>
 		protected double mNewLineAdvance;
+		#endregion
+
+		#region TopLevel
+		protected XmlConverter() {
+			Init();
+		}
+		protected Doc Load(string fileName) {
+			mBaseDirectory = Path.GetDirectoryName(fileName) + Path.DirectorySeparatorChar;
+
+			mDoc = new Doc();
+			Init();
+
+			try {
+				mReader = new XmlTextReader(fileName);
+				mReader.WhitespaceHandling = WhitespaceHandling.None;
+
+				while (mReader.Read()) {
+					switch (mReader.NodeType) {
+						case XmlNodeType.Element:
+							string tagName = mReader.Name;
+							ProcessTag();
+							break;
+						case XmlNodeType.Text:
+							string text = mReader.Value;
+							ProcessText(text);
+							break;
+						case XmlNodeType.EndElement:
+							ProcessCloseTag(mReader);
+							break;
+					}
+				}
+			}
+			finally {
+				if (mReader != null)
+					mReader.Close();
+			}
+			return mDoc;
+		}
 		#endregion
 
 		#region Handlers
@@ -223,13 +254,10 @@ namespace TaggedPDF {
 		/// Handle image tag
 		/// </summary>
 		protected void HandleImage() {
-			string attr;
-			if (GetAttribute("alt", out attr)) {
-				StructureElement element = mContent.TaggedItem;
-				element.AltDescription = attr;
-			}
-			if (GetAttribute("src", out attr))
-				ProcessImage(attr);
+			string alt, src;
+			GetAttribute("alt", out alt);
+			if (GetAttribute("src", out src))
+				ProcessImage(src, alt);
 		}
 		/// <summary>
 		/// Handle B tag
@@ -319,7 +347,7 @@ namespace TaggedPDF {
 			if (GetAttribute("bottommargin", out attr))
 				mDoc.Rect.Bottom += double.Parse(attr, NumberFormatInfo.InvariantInfo);
 
-			BackgroundElement bodyItem = new BackgroundElement(mContent.TaggedItem);
+			BackgroundElement bodyItem = new BackgroundElement();
 			if (mBackgroundStack.Count <= 0) {
 				bodyItem.BackgroundColor = bgcolor;
 				bodyItem.BackgroundImage = background;
@@ -336,12 +364,6 @@ namespace TaggedPDF {
 		/// </summary>
 		protected void HandleCloseBody() {
 			mBackgroundStack.Pop();
-		}
-
-		/// <summary>
-		/// New page handler.
-		/// </summary>
-		protected void HandleNewPage() {
 		}
 
 		#endregion
@@ -456,11 +478,10 @@ namespace TaggedPDF {
 		/// Process arbitrary tag
 		/// </summary>
 		protected void ProcessTag() {
-			mContent.BeginTaggedItem(mReader.Name);
-
 			switch (mReader.Name.ToLower()) {
 				case "p":
 					HandleP();
+					mDoc.Tag.Open(mReader.Name);
 					break;
 				case "h1":
 				case "h2":
@@ -468,6 +489,7 @@ namespace TaggedPDF {
 				case "h4":
 				case "h5":
 				case "h6":
+					mDoc.Tag.Open(mReader.Name);
 					HandleH();
 					break;
 				case "font":
@@ -501,8 +523,6 @@ namespace TaggedPDF {
 		/// </summary>
 		/// <param name="mReader">Xml reader to read data from</param>
 		private void ProcessCloseTag(XmlReader mReader) {
-			mContent.EndTaggedItem();
-
 			switch (mReader.Name.ToLower()) {
 				case "p":
 				case "h1":
@@ -512,6 +532,7 @@ namespace TaggedPDF {
 				case "h5":
 				case "h6":
 					HandleCloseP();
+					mDoc.Tag.Close(mReader.Name);
 					break;
 				case "font":
 					HandleCloseFont();
@@ -538,6 +559,8 @@ namespace TaggedPDF {
 		/// </summary>
 		/// <param name="text">Text data</param>
 		protected void ProcessText(string text) {
+			SetBackground();
+
 			mDoc.TextStyle.String = mTextStyleStack.Peek().String;
 			mDoc.TextStyle.Size = mFontSizeStack.Peek();
 			mDoc.Font = mDoc.AddFont(mFontFaceStack.Peek());
@@ -554,14 +577,14 @@ namespace TaggedPDF {
 			case TextFormat.Pre:
 				id = mDoc.AddText(text);
 				if(id == 0) {
-					NextChain();
+					NewPage();
 					id = mDoc.AddText(text);
 				}
 				break;
 			case TextFormat.Html:
 				id = mDoc.AddTextStyled(text);
 				if(id == 0) {
-					NextChain();
+					NewPage();
 					id = mDoc.AddTextStyled(text);
 				}
 				break;
@@ -569,22 +592,16 @@ namespace TaggedPDF {
 				text = HttpUtility.HtmlEncode(text);
 				id = mDoc.AddTextStyled(text);
 				if(id == 0) {
-					NextChain();
+					NewPage();
 					id = mDoc.AddTextStyled(text);
 				}
 				break;
 			}
-			if (id > 0)
-				SaveContent(id, false);
 
 			while (mDoc.Chainable(id)) {
-				NextChain();
-				int oldId = id;
+				NewPage();
 				id = mDoc.AddTextStyled("", id);
-				mContent.ClearContent(oldId);
-				SaveContent(id, false);
 			}
-			mContent.ClearContent(id);
 
 			if (mDoc.Pos.Y > initialY)
 				mNewLineAdvance = mDoc.TextStyle.Size;
@@ -594,25 +611,16 @@ namespace TaggedPDF {
 		/// <summary>
 		/// Create a new page for the same tagged item.
 		/// </summary>
-		private void NextChain() {
-			mContent.StartNewPage();
-			HandleNewPage();
-		}
-		/// <summary>
-		/// Save the object contents
-		/// </summary>
-		/// <param name="id">The object ID</param>
-		/// <param name="clear">Whether it is necessary to clear object contents after saving</param>
-		public void SaveContent(int id, bool clear) {
+		private void NewPage() {
+			mDoc.Page = mDoc.AddPage();
 			SetBackground();
-			mContent.SaveContent(id, clear);
 		}
 
 		/// <summary>
 		/// Add image object to the output content
 		/// </summary>
 		/// <param name="fileName">Image file name</param>
-		protected void ProcessImage(string fileName) {
+		protected void ProcessImage(string fileName, string alt) {
 			XImage image = new XImage();
 			if (!Path.IsPathRooted(fileName))
 				fileName = mBaseDirectory + fileName;
@@ -623,8 +631,9 @@ namespace TaggedPDF {
 
 			HandleBR();
 
+			SetBackground();
 			if (mDoc.Pos.Y - image.Height < mDoc.Rect.Bottom)
-				NextChain();
+				NewPage();
 
 			string curRect = mDoc.Rect.String;
 			double curY = mDoc.Pos.Y;
@@ -638,18 +647,22 @@ namespace TaggedPDF {
 			mDoc.Rect.Top = curY;
 			mDoc.Rect.Bottom = mDoc.Rect.Top - image.Height;
 
+			var figure = mDoc.Tag.MakeTag("Image");
+			if (!string.IsNullOrEmpty(alt)) {
+				figure.Attributes = new DictAtom();
+				figure.Attributes["Alt"] = new StringAtom(alt);
+			}
+			mDoc.Tag.Open(figure);
 			int id = mDoc.AddImage(fileName);
+			mDoc.Tag.Close(figure.Type);
 
 			mDoc.Rect.String = curRect;
 			mDoc.Pos.Y = curY;
-
-			SaveContent(id, true);
 
 			mDoc.Pos.X += image.Width;
 			mNewLineAdvance = image.Height;
 			HandleBR();
 			image.Dispose();
-			mContent.EndTaggedItem();
 		}
 
 		/// <summary>
@@ -714,13 +727,6 @@ namespace TaggedPDF {
 					mDoc.Pos.String = curPos;
 				}
 			}
-			if (contentIds != null) {
-				StructureElement oldItem = mContent.TaggedItem;
-				mContent.TaggedItem = item.TaggedItem;
-				mContent.SaveBackground(contentIds, rect,
-					item.Rect != null? null: "/Left /Bottom /Right /Top", true);
-				mContent.TaggedItem = oldItem;
-			}
 		}
 
 		/// <summary>
@@ -748,49 +754,12 @@ namespace TaggedPDF {
 
 		#region Public methods
 		/// <summary>
-		/// Constructor
-		/// </summary>
-		public XmlConverter() {
-			Init();
-		}
-		/// <summary>
 		/// Convert xml file to the tagged pdf
 		/// </summary>
 		/// <param name="fileName">Xml file name</param>
-		public void Convert(string fileName, string pdfFilePath) {
-			mBaseDirectory = Path.GetDirectoryName(fileName) + Path.DirectorySeparatorChar;
-
-			mDoc = new Doc();
-			mContent = new TaggedContent(mDoc);
-			Init();
-
-			try {
-				mReader = new XmlTextReader(fileName);
-				mReader.WhitespaceHandling = WhitespaceHandling.None;
-
-				while (mReader.Read()) {
-					switch (mReader.NodeType) {
-						case XmlNodeType.Element:
-							string tagName = mReader.Name;
-							ProcessTag();
-							break;
-						case XmlNodeType.Text:
-							string text = mReader.Value;
-							ProcessText(text);
-							break;
-						case XmlNodeType.EndElement:
-							ProcessCloseTag(mReader);
-							break;
-					}
-				}
-			}
-			finally {
-				if (mReader!=null) {
-					mReader.Close();
-					mContent.AddToDoc();
-					mDoc.Save(pdfFilePath);
-				}
-			}
+		public static Doc Create(string fileName) {
+			var conv = new XmlConverter();
+			return conv.Load(fileName);
 		}
 		#endregion
 	}

@@ -30,24 +30,25 @@ using System.Windows.Markup;
 using System.Windows.Xps.Packaging;
 #endif
 using System.Xml;
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Atoms;
-using WebSupergoo.ABCpdf13.Drawing;
-using WebSupergoo.ABCpdf13.Elements;
-using WebSupergoo.ABCpdf13.Objects;
-using WebSupergoo.ABCpdf13.Operations;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Drawing;
+using WebSupergoo.ABCpdf14.Elements;
+using WebSupergoo.ABCpdf14.Objects;
+using WebSupergoo.ABCpdf14.Operations;
+using WebSupergoo.ABCpdf14.Python;
 using WebSupergoo.Annotations;
 #if NETFRAMEWORK
 using WPFTable;
 #endif
 using Bitmap = System.Drawing.Bitmap;
-using ColorSpace = WebSupergoo.ABCpdf13.Objects.ColorSpace;
+using ColorSpace = WebSupergoo.ABCpdf14.Objects.ColorSpace;
 #if NETFRAMEWORK
 using FlowDocumentPageViewer = System.Windows.Controls.FlowDocumentPageViewer;
 using LogicalTreeHelper = System.Windows.LogicalTreeHelper;
 #endif
 using Graphics = System.Drawing.Graphics;
-using Page = WebSupergoo.ABCpdf13.Objects.Page;
+using Page = WebSupergoo.ABCpdf14.Objects.Page;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using PDFContent = AdvancedGraphics.PDFContent;
@@ -56,8 +57,8 @@ using PDFContent = AdvancedGraphics.PDFContent;
 
 namespace ExampleTests {
 	class Tests {
-		static string GetUrl(string s) {
-			string file = Server.MapPath(s);
+		static string GetUri(string file) {
+			file = Path.GetFullPath(file);
 			var uri = new Uri(file);
 			return uri.AbsolutePath;
 		}
@@ -93,7 +94,7 @@ namespace ExampleTests {
 			}
 			// End Part:
 			// Part: 4 of 4
-			doc.Save(Server.MapPath("textflow.pdf"));
+			doc.Save("textflow.pdf");
 			// End Part:
 		}
 		// File End:
@@ -119,7 +120,7 @@ namespace ExampleTests {
 			// End Part:
 			// Part: 3 of 5
 			string saveRect = doc.Rect.String;
-			using var xi = XImage.FromFile(Server.MapPath("mypics/pic.jpg"), null);
+			using var xi = XImage.FromFile("../mypics/pic.jpg", null);
 			doc.Rect.Resize(xi.Width / 2, xi.Height / 2, XRect.Corner.TopLeft);
 			doc.AddImage(xi);
 			// End Part:
@@ -133,7 +134,61 @@ namespace ExampleTests {
 			doc.Rect.String = saveRect;
 			doc.FrameRect();
 			int id = doc.AddTextStyled(style + text + "</stylerun>");
-			doc.Save(Server.MapPath("textflowroundimage.pdf"));
+			doc.Save("textflowroundimage.pdf");
+			// End Part:
+		}
+		// File End:
+
+		// Tagged Text Example
+		// 
+		// This example shows how to add text to a PDF document tagged appropriately for PDF/
+		// UA.
+		//
+		// File Start: False .\4-examples\02-texttagged.htm
+		public static void Ex4_examples_02_texttagged() {
+			// Part: 1 of 5
+			using var doc = new Doc();
+			var st = doc.Tag.GetStructure();
+			st.CreateAsRequired();
+			st.Title = "Tagged Document";
+			st.Root.AddKid("Document").EntryLang = "en-GB";
+			// End Part:
+			// Part: 2 of 5
+			doc.Font = doc.EmbedFont("Arial");
+			doc.TextStyle.Size = 36;
+			doc.Page = doc.AddPage();
+			doc.Rect.Inset(72, 72);
+			doc.TextStyle.AutoTag = true;
+			doc.AddTextStyled("<h1 fontsize=48>Animals<h1><p>Koala<p><p>Squirrel<p>");
+			// End Part:
+			// Part: 3 of 5
+			doc.Pos.Y -= 72;
+			doc.Tag.Open("Sect", "Div", "P");
+			doc.AddText("Div one paragraph one.\r\n");
+			doc.Tag.CloseOpen("P");
+			doc.AddText("Div one paragraph two.\r\n");
+			doc.Tag.Close("P", "Div");
+			doc.Tag.Open("Div", "P");
+			doc.AddText("Div two paragraph one.\r\n");
+			doc.Tag.CloseOpen("P");
+			doc.AddText("Div two paragraph two.\r\n");
+			doc.Tag.Close("P", "Div", "Sect");
+			// End Part:
+			// Part: 4 of 5
+			doc.Tag.Roles["RubberStamp"] = "Annot";
+			doc.Tag.Classes["RedBorder"] = Atom.FromString("<< /O /Layout /BorderColor [1 0 0] /BorderStyle /Solid >>");
+			var graphic = doc.Tag.MakeTag("RubberStamp");
+			graphic.Attributes = new DictAtom();
+			graphic.Attributes["Alt"] = new StringAtom("Classification: Secret");
+			graphic.Attributes["C"] = new NameAtom("RedBorder");
+			graphic.Object = new StampAnnotation(doc, XRect.FromLbwh(200, 100, 200, 80), "SECRET", XColor.FromRgb(255, 0, 0));
+			doc.Tag.OpenClose(graphic);
+			// End Part:
+			// Part: 5 of 5
+			doc.Save("taggedtext.pdf");
+			st.UpdateActualText(true, true);
+			var txt = st.ExtractStructure();
+			File.WriteAllText("taggedtext.txt", txt.ToString());
 			// End Part:
 		}
 		// File End:
@@ -162,7 +217,7 @@ namespace ExampleTests {
 			doc.AddTextStyled(text);
 			// End Part:
 			// Part: 4 of 4
-			doc.Save(Server.MapPath("styles.pdf"));
+			doc.Save("styles.pdf");
 			// End Part:
 		}
 		// File End:
@@ -175,7 +230,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_04_image() {
 			// Part: 1 of 2
 			using var img = new XImage();
-			img.SetFile(Server.MapPath("../mypics/pic.jpg"));
+			img.SetFile("../mypics/pic.jpg");
 			// End Part:
 			// Part: 2 of 2
 			using var doc = new Doc();
@@ -184,7 +239,7 @@ namespace ExampleTests {
 			doc.Rect.Width = img.Width;
 			doc.Rect.Height = img.Height;
 			doc.AddImageObject(img, false);
-			doc.Save(Server.MapPath("image.pdf"));
+			doc.Save("image.pdf");
 			// End Part:
 		}
 		// File End:
@@ -197,7 +252,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_05_deletion() {
 			// Part: 1 of 3
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			int count = doc.PageCount - 1;
 			// End Part:
 			// Part: 2 of 3
@@ -212,7 +267,7 @@ namespace ExampleTests {
 			doc.TextStyle.HPos = 0.5;
 			doc.TextStyle.VPos = 0.3;
 			doc.AddText(count.ToString());
-			doc.Save(Server.MapPath("deletion.pdf"));
+			doc.Save("deletion.pdf");
 			// End Part:
 		}
 		// File End:
@@ -265,7 +320,7 @@ namespace ExampleTests {
 			}
 			// End Part:
 			// Part: 5 of 5
-			doc.Save(Server.MapPath("headerfooter.pdf"));
+			doc.Save("headerfooter.pdf");
 			// End Part:
 		}
 		// File End:
@@ -300,7 +355,7 @@ namespace ExampleTests {
 			// adjust the default rotation and save
 			int id = doc.GetInfoInt(doc.Root, "Pages");
 			doc.SetInfo(id, "/Rotate", "90");
-			doc.Save(Server.MapPath("landscape.pdf"));
+			doc.Save("landscape.pdf");
 			// End Part:
 		}
 		// File End:
@@ -318,7 +373,7 @@ namespace ExampleTests {
 		// File Start: False .\4-examples\09-table1.htm
 		public static void Ex4_examples_09_table1() {
 			// Part: 1 of 3
-			string text = File.ReadAllText(Server.MapPath("text6.txt"));
+			string text = File.ReadAllText("../Rez/text6.txt");
 			using var doc = new Doc();
 			// set up document
 			doc.FontSize = 16;
@@ -332,20 +387,18 @@ namespace ExampleTests {
 			// Part: 3 of 3
 			text = text.Trim();
 			text = text.Replace("\r\n", "\r");
-			string[] theRows = text.Split(new char[] { '\r' });
+			string[] theRows = text.Split([ '\r' ]);
 			
 			for (int i = 0; i < theRows.Length; i++) {
 				table.NextRow();
-				string[] theCols = theRows[i].Split(new char[] { '\t' });
+				string[] theCols = theRows[i].Split([ '\t' ]);
 				theCols[0] = "<stylerun hpos=0>" + theCols[0] + "</stylerun>";
 				table.AddTextStyled(theCols);
 				if ((i % 2) == 1)
 					table.FillRow("220 220 220", i);
 			}
 			table.Frame();
-			
-			doc.Flatten();
-			doc.Save(Server.MapPath("table1.pdf"));
+			doc.Save("table1.pdf");
 			// End Part:
 		}
 		// File End:
@@ -363,7 +416,7 @@ namespace ExampleTests {
 		// File Start: False .\4-examples\10-table2.htm
 		public static void Ex4_examples_10_table2() {
 			// Part: 1 of 3
-			string text = File.ReadAllText(Server.MapPath("text7.txt"));
+			string text = File.ReadAllText("../Rez/text7.txt");
 			using var doc = new Doc();
 			// set up document
 			doc.FontSize = 12;
@@ -372,18 +425,18 @@ namespace ExampleTests {
 			// Part: 2 of 3
 			PDFTable theTable = new PDFTable(doc, 6);
 			// some columns extra width
-			theTable.SetColumnWidths(new double[] { 2, 1, 3, 2, 1, 4 });
+			theTable.SetColumnWidths([ 2.0, 1.0, 3.0, 2.0, 1.0, 4.0 ]);
 			theTable.CellPadding = 5;
 			theTable.RepeatHeader = true;
 			// End Part:
 			// Part: 3 of 3
 			text = text.Replace("\r\n", "\r");
-			string[] theRows = text.Split(new char[] { '\r' });
+			string[] theRows = text.Split([ '\r' ]);
 			int thePage = 1;
 			bool theShade = false;
 			for (int i = 0; i < theRows.Length; i++) {
 				theTable.NextRow();
-				string[] theCols = theRows[i].Split(new char[] { '\t' });
+				string[] theCols = theRows[i].Split([ '\t' ]);
 				theTable.AddTextStyled(theCols);
 				if (doc.PageNumber > thePage) {
 					thePage = doc.PageNumber;
@@ -393,8 +446,7 @@ namespace ExampleTests {
 					theTable.FillRow("200 200 200", theTable.Row);
 				theShade = !theShade;
 			}
-			doc.Flatten();
-			doc.Save(Server.MapPath("table2.pdf"));
+			doc.Save("table2.pdf");
 			// End Part:
 		}
 		// File End:
@@ -412,7 +464,7 @@ namespace ExampleTests {
 			doc.FontSize = 32;
 			// End Part:
 			// Part: 2 of 5
-			string path = Server.MapPath("../Rez/Japanese2.txt");
+			string path = "../Rez/Japanese2.txt";
 			string text = File.ReadAllText(path);
 			// End Part:
 			// Part: 3 of 5
@@ -426,7 +478,7 @@ namespace ExampleTests {
 			doc.AddText("Japanese" + text);
 			// End Part:
 			// Part: 5 of 5
-			doc.Save(Server.MapPath("unicode.pdf"));
+			doc.Save("unicode.pdf");
 			// finished
 			// End Part:
 		}
@@ -438,12 +490,12 @@ namespace ExampleTests {
 		//
 		// File Start: False .\4-examples\13-pagedhtml.htm
 		public static void Ex4_examples_13_pagedhtml() {
-			// Part: 1 of 6
+			// Part: 1 of 5
 			using var doc = new Doc();
 			doc.Rect.Inset(72, 144);
 			// End Part:
-			// Part: 2 of 6
-			doc.HtmlOptions.Engine = EngineType.Chrome123;
+			// Part: 2 of 5
+			doc.HtmlOptions.Engine = EngineType.Chrome146;
 			doc.HtmlOptions.UseScript = true; // enable JavaScript
 			doc.HtmlOptions.Media = MediaType.Print; // Or Screen for a more screen oriented output
 			doc.HtmlOptions.InitialWidth = 800; // In case we have a responsive site which is non-specific on good widths
@@ -452,11 +504,11 @@ namespace ExampleTests {
 			//doc.HtmlOptions.IgnoreCertificateErrors = false; // Disabled for ease of debugging
 			//doc.HtmlOptions.FireShield.Policy = XHtmlFireShield.Enforcement.Deny; // Disabled for ease of debugging
 			// End Part:
-			// Part: 3 of 6
+			// Part: 3 of 5
 			doc.Page = doc.AddPage();
 			int id = doc.AddImageUrl("http://www.yahoo.com/");
 			// End Part:
-			// Part: 4 of 6
+			// Part: 4 of 5
 			while (true) {
 				doc.FrameRect(); // add a black border
 				if (!doc.Chainable(id))
@@ -465,14 +517,8 @@ namespace ExampleTests {
 				id = doc.AddImageToChain(id);
 			}
 			// End Part:
-			// Part: 5 of 6
-			for (int i = 1; i <= doc.PageCount; i++) {
-				doc.PageNumber = i;
-				doc.Flatten();
-			}
-			// End Part:
-			// Part: 6 of 6
-			doc.Save(Server.MapPath("pagedhtml.pdf"));
+			// Part: 5 of 5
+			doc.Save("pagedhtml.pdf");
 			// End Part:
 		}
 		// File End:
@@ -486,7 +532,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_15_eform1() {
 			// Part: 1 of 3
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/form.pdf"));
+			doc.Read("../mypics/form.pdf");
 			
 			doc.Form.NeedAppearances = false; // for PDF 2.0
 			// End Part:
@@ -498,7 +544,7 @@ namespace ExampleTests {
 			}
 			// End Part:
 			// Part: 3 of 3
-			doc.Save(Server.MapPath("eformfields.pdf"));
+			doc.Save("eformfields.pdf");
 			// End Part:
 		}
 		// File End:
@@ -513,7 +559,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_15_eform2() {
 			// Part: 1 of 3
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/form.pdf"));
+			doc.Read("../mypics/form.pdf");
 			doc.Form.NeedAppearances = false; // for PDF 2.0
 			doc.Font = doc.AddFont("Helvetica-Bold");
 			doc.FontSize = 16;
@@ -533,7 +579,7 @@ namespace ExampleTests {
 			}
 			// End Part:
 			// Part: 3 of 3
-			doc.Save(Server.MapPath("eform.pdf"));
+			doc.Save("eform.pdf");
 			// End Part:
 		}
 		// File End:
@@ -547,7 +593,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_15_eform3() {
 			// Part: 1 of 3
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/form.pdf"));
+			doc.Read("../mypics/form.pdf");
 			doc.Form.NeedAppearances = false; // for PDF 2.0
 			doc.Font = doc.AddFont("Helvetica-Bold");
 			// End Part:
@@ -559,7 +605,7 @@ namespace ExampleTests {
 			doc.Form.Stamp();
 			// End Part:
 			// Part: 3 of 3
-			doc.Save(Server.MapPath("eformstamp.pdf"));
+			doc.Save("eformstamp.pdf");
 			// End Part:
 		}
 		// File End:
@@ -572,7 +618,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_16_eformfdf() {
 			// Part: 1 of 4
 			using var fdf = new Doc();
-			fdf.Read(Server.MapPath("../Rez/form.fdf"));
+			fdf.Read("../Rez/form.fdf");
 			// End Part:
 			// Part: 2 of 4
 			string theValues = "";
@@ -606,7 +652,7 @@ namespace ExampleTests {
 			doc.FontSize = 96;
 			doc.Rect.Inset(10, 10);
 			doc.AddText(theValues);
-			doc.Save(Server.MapPath("fdf.pdf"));
+			doc.Save("fdf.pdf");
 			// End Part:
 		}
 		// File End:
@@ -630,7 +676,7 @@ namespace ExampleTests {
 				theContent.Stroke();
 				theContent.RestoreState();
 				theContent.AddToDoc();
-				doc.Save(Server.MapPath("adv_star_draw.pdf"));
+				doc.Save("adv_star_draw.pdf");
 			}
 			// End Part:
 			// Part: 2 of 8
@@ -648,7 +694,7 @@ namespace ExampleTests {
 				theContent.Fill();
 				theContent.RestoreState();
 				theContent.AddToDoc();
-				doc.Save(Server.MapPath("adv_star_fill.pdf"));
+				doc.Save("adv_star_fill.pdf");
 			}
 			// End Part:
 			// Part: 3 of 8
@@ -679,7 +725,7 @@ namespace ExampleTests {
 				doc.AddLine(100, 50, 200, 650);
 				doc.AddLine(400, 550, 500, 250);
 				theContent.AddToDoc();
-				doc.Save(Server.MapPath("adv_bezier.pdf"));
+				doc.Save("adv_bezier.pdf");
 			}
 			// End Part:
 			// Part: 4 of 8
@@ -698,7 +744,7 @@ namespace ExampleTests {
 				theContent.Fill();
 				theContent.RestoreState();
 				theContent.AddToDoc();
-				doc.Save(Server.MapPath("adv_star_clip.pdf"));
+				doc.Save("adv_star_clip.pdf");
 			}
 			// End Part:
 			// Part: 5 of 8
@@ -751,7 +797,7 @@ namespace ExampleTests {
 				doc.Rect.String = "480 580 520 620";
 				doc.FillRect(20, 20);
 				doc.Color.String = "0 0 0";
-				doc.Save(Server.MapPath("adv_linecap.pdf"));
+				doc.Save("adv_linecap.pdf");
 			}
 			// End Part:
 			// Part: 6 of 8
@@ -799,7 +845,7 @@ namespace ExampleTests {
 				doc.Rect.String = "390 290 410 310";
 				doc.FillRect(10, 10);
 				doc.Color.String = "0 0 0";
-				doc.Save(Server.MapPath("adv_linejoin.pdf"));
+				doc.Save("adv_linejoin.pdf");
 			}
 			// End Part:
 			// Part: 7 of 8
@@ -842,7 +888,7 @@ namespace ExampleTests {
 			
 				// add dashed lines
 				theContent.AddToDoc();
-				doc.Save(Server.MapPath("adv_dashes.pdf"));
+				doc.Save("adv_dashes.pdf");
 			}
 			// End Part:
 			// Part: 8 of 8
@@ -866,7 +912,7 @@ namespace ExampleTests {
 				theContent.AddContent(star);
 				theContent.RestoreState();
 				theContent.AddToDoc();
-				doc.Save(Server.MapPath("adv_star_rotate.pdf"));
+				doc.Save("adv_star_rotate.pdf");
 			}
 			// End Part:
 		}
@@ -884,7 +930,7 @@ namespace ExampleTests {
 				var cat = doc.ObjectSoup.Catalog;
 			
 				var fileTree = new EmbeddedFileTree(doc);
-				fileTree.EmbedFile("MyFile1", Server.MapPath("ABCpdf.swf"), "attachment without annotation");
+				fileTree.EmbedFile("MyFile1", "../Rez/ABCpdf.swf", "attachment without annotation");
 				doc.SetInfo(doc.Root, "/PageMode:Name", "UseAttachments");
 			
 				doc.Pos.X = 40;
@@ -909,15 +955,15 @@ namespace ExampleTests {
 				var textW = new WidgetAnnotationElement(text);
 				textE.EntryDA = $"/{fontName} 36 Tf 0 0 1 rg";
 				textW.EntryMK = new AppearanceCharacteristicsElement(textE);
-				textW.EntryMK.EntryBC = new double[] { 0, 0, 0 };
-				textW.EntryMK.EntryBG = new double[] { 220.0 / 255.0, 220.0 / 255.0, 220.0 / 255.0 };
+				textW.EntryMK.EntryBC = [ 0.0, 0.0, 0.0 ];
+				textW.EntryMK.EntryBG = [ 220.0 / 255.0, 220.0 / 255.0, 220.0 / 255.0 ];
 				textE.EntryQ = 0; // Left alignment
 			
 				text = form.AddTextField(new XRect("40 460 300 510"), "TextField2", "Text Field");
 				textE = new FieldElement(text);
 				textW = new WidgetAnnotationElement(text);
 				textW.EntryMK = new AppearanceCharacteristicsElement(textE);
-				textW.EntryMK.EntryBC = new double[] { 0, 0, 0 };
+				textW.EntryMK.EntryBC = [ 0.0, 0.0, 0.0 ];
 				textE.EntryDA = $"/{fontName} 36 Tf 0 0 1 rg";
 				textE.EntryQ = 0; // Left alignment
 				textE.EntryFf |= (int)Field.FieldFlags.Password;
@@ -926,7 +972,7 @@ namespace ExampleTests {
 				textE = new FieldElement(text);
 				textW = new WidgetAnnotationElement(text);
 				textW.EntryMK = new AppearanceCharacteristicsElement(textE);
-				textW.EntryMK.EntryBC = new double[] { 0, 0, 0 };
+				textW.EntryMK.EntryBC = [ 0.0, 0.0, 0.0 ];
 				textE.EntryDA = $"/{fontName} 36 Tf 0 0 0 rg";
 				textW.EntryMK.EntryR = 90; // Rotation
 			
@@ -934,13 +980,13 @@ namespace ExampleTests {
 				var combo = form.AddComboBoxField(new XRect("40 390 300 440"), "ComboBoxField");
 				var comboE = new FieldElement(combo);
 				comboE.EntryDA = $"/{fontName} 24 Tf 0 0 0 rg";
-				combo.Options = new string[] { "ComboBox Item 1", "ComboBox Item 2", "ComboBox Item 3" };
+				combo.Options = [ "ComboBox Item 1", "ComboBox Item 2", "ComboBox Item 3" ];
 			
 				// Listbox field
 				var listbox = form.AddListBoxField(new XRect("40 280 300 370"), "ListBoxField");
 				var listboxE = new FieldElement(listbox);
 				listboxE.EntryDA = $"/{fontName} 24 Tf 0 0 0 rg";
-				listbox.Options = new string[] { "ListBox Item 1", "ListBox Item 2", "ListBox Item 3" };
+				listbox.Options = [ "ListBox Item 1", "ListBox Item 2", "ListBox Item 3" ];
 			
 				// Checkbox field
 				form.AddCheckbox(new XRect("40 220 80 260"), "CheckBoxField", true);
@@ -951,13 +997,13 @@ namespace ExampleTests {
 				var button = form.AddButton(new XRect("40 160 200 200"), "ButtonField", "Button");
 				var buttonW = new WidgetAnnotationElement(button);
 				buttonW.EntryMK = new AppearanceCharacteristicsElement(buttonW);
-				buttonW.EntryMK.EntryBC = new double[] { 0, 0, 0 };
+				buttonW.EntryMK.EntryBC = [ 0.0, 0.0, 0.0 ];
 				buttonW.EntryBS = new BorderStyleElement(buttonW);
 				buttonW.EntryBS.EntryS = "B"; // beveled
 			
 				// Signature field
 				var sig1 = form.AddSignature(new XRect("40 100 240 150"), "Signature1");
-				doc.Save(Server.MapPath("annotations1.pdf"));
+				doc.Save("annotations1.pdf");
 			}
 			// End Part:
 			// Part: 2 of 4
@@ -1008,12 +1054,12 @@ namespace ExampleTests {
 				arrowLine.LineElement.EntryBS.EntryW = 6;
 				arrowLine.FillColor = XColor.FromRgb(255, 0, 0);
 			
-				double[] v1 = new double[] { 100, 70, 50, 120, 50, 220, 100, 270, 200, 270, 250, 220, 250, 120, 200, 70 };
+				var v1 = new double[] { 100, 70, 50, 120, 50, 220, 100, 270, 200, 270, 250, 220, 250, 120, 200, 70 };
 				var polygon = new PolygonAnnotation(doc, v1, XColor.FromRgb(255, 0, 0), XColor.FromRgb(0, 255, 0));
-				double[] v2 = new double[] { 400, 70, 350, 120, 350, 220, 400, 270, 500, 270, 550, 220, 550, 120, 500, 70 };
+				var v2 = new double[] { 400, 70, 350, 120, 350, 220, 400, 270, 500, 270, 550, 220, 550, 120, 500, 70 };
 				var cloudyPolygon = new PolygonAnnotation(doc, v2, XColor.FromRgb(255, 0, 0), XColor.FromRgb(64, 85, 255));
 				cloudyPolygon.CloudyEffect = 1;
-				doc.Save(Server.MapPath("annotations2.pdf"));
+				doc.Save("annotations2.pdf");
 			}
 			// End Part:
 			// Part: 3 of 4
@@ -1029,12 +1075,12 @@ namespace ExampleTests {
 			
 				doc.Pos.String = "40 690";
 				doc.AddText("Flash movie:");
-				var movie1 = new ScreenAnnotation(doc, new XRect("40 420 300 650"), Server.MapPath("ABCpdf.swf"));
+				var movie1 = new ScreenAnnotation(doc, new XRect("40 420 300 650"), "../Rez/ABCpdf.swf");
 			
 				doc.Pos.String = "312 690";
 				doc.AddText("Flash rich media:");
-				var media1 = new RichMediaAnnotation(doc, new XRect("312 420 572 650"), Server.MapPath("ABCpdf.swf"), "Flash");
-				doc.Save(Server.MapPath("annotations3.pdf"));
+				var media1 = new RichMediaAnnotation(doc, new XRect("312 420 572 650"), "../Rez/ABCpdf.swf", "Flash");
+				doc.Save("annotations3.pdf");
 			}
 			// End Part:
 			// Part: 4 of 4
@@ -1054,7 +1100,7 @@ namespace ExampleTests {
 				//File attachment annotation
 				doc.Pos.String = "40 640";
 				doc.AddText("File Attachment annotation");
-				var fileAttachment = new FileAttachmentAnnotation(doc, new XRect("340 620 360 640"), Server.MapPath("video.WMV"));
+				var fileAttachment = new FileAttachmentAnnotation(doc, new XRect("340 620 360 640"), "../Rez/video.WMV");
 			
 				//StampAnnotations
 				doc.Pos.String = "40 600";
@@ -1062,7 +1108,7 @@ namespace ExampleTests {
 				var stamp1 = new StampAnnotation(doc, new XRect("340 560 540 600"), "DRAFT", XColor.FromRgb(0, 0, 128));
 				var stamp2 = new StampAnnotation(doc, new XRect("340 505 540 545"), "FINAL", XColor.FromRgb(0, 128, 0));
 				var stamp3 = new StampAnnotation(doc, new XRect("340 450 540 490"), "NOT APPROVED", XColor.FromRgb(128, 0, 0));
-				doc.Save(Server.MapPath("annotations4.pdf"));
+				doc.Save("annotations4.pdf");
 			}
 			// End Part:
 		}
@@ -1079,7 +1125,7 @@ namespace ExampleTests {
 		public static void Ex4_examples_19_rendering() {
 			// Part: 1 of 3
 			using Doc doc = new Doc();
-			doc.Read(Server.MapPath("../Rez/spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			// End Part:
 			// Part: 2 of 3
 			doc.Rendering.DotsPerInch = 36;
@@ -1088,7 +1134,7 @@ namespace ExampleTests {
 			for (int i = 1; i <= 4; i++) {
 				doc.PageNumber = i;
 				doc.Rect.String = doc.CropBox.String;
-				doc.Rendering.Save(Server.MapPath("shuttle_p" + i.ToString() + ".png"));
+				doc.Rendering.Save("shuttle_p" + i.ToString() + ".png");
 			}
 			// End Part:
 		}
@@ -1099,18 +1145,18 @@ namespace ExampleTests {
 		// File Start: False .\4-examples\20-systemdrawing.htm
 		public static void Ex4_examples_20_systemdrawing() {
 			// Part: 1 of 5
-			//using WebSupergoo.ABCpdf13.Drawing;
-			//using WebSupergoo.ABCpdf13.Drawing.Drawing2D;
-			//using WebSupergoo.ABCpdf13.Drawing.Text;
+			//using WebSupergoo.ABCpdf14.Drawing;
+			//using WebSupergoo.ABCpdf14.Drawing.Drawing2D;
+			//using WebSupergoo.ABCpdf14.Drawing.Text;
 			// End Part:
 			// Part: 2 of 5
 			//using System;
 			//using System.IO;
 			//using System.Reflection;
 			
-			//using WebSupergoo.ABCpdf13.Drawing;
-			//using WebSupergoo.ABCpdf13.Drawing.Drawing2D;
-			//using WebSupergoo.ABCpdf13.Drawing.Text;
+			//using WebSupergoo.ABCpdf14.Drawing;
+			//using WebSupergoo.ABCpdf14.Drawing.Drawing2D;
+			//using WebSupergoo.ABCpdf14.Drawing.Text;
 			//using Rectangle = System.Drawing.Rectangle;
 			//using RectangleF = System.Drawing.RectangleF;
 			//using Point = System.Drawing.Point;
@@ -1128,7 +1174,7 @@ namespace ExampleTests {
 			var solidWhite = new SolidBrush(Color.White);
 			gr.FillRectangle(solidWhite, pgRect);
 			// load a new image and draw it centered on our canvas
-			using var stm = File.OpenRead(Server.MapPath("mypics/pic1.jpg"));
+			using var stm = File.OpenRead("../mypics/pic1.jpg");
 			using var img = Image.FromStream(stm);
 			int w = img.Width;
 			int h = img.Height;
@@ -1143,7 +1189,7 @@ namespace ExampleTests {
 			// End Part:
 			// Part: 5 of 5
 			// save the output
-			doc.Save(Server.MapPath("abcpdf.drawing.pdf"));
+			doc.Save("abcpdf.drawing.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1181,16 +1227,16 @@ namespace ExampleTests {
 		public static void Ex4_examples_21_wpftables() {
 			// Part: 1 of 3
 			#if NETFRAMEWORK // ignore
-			MemoryStream ModifyXamlUsingTextProvider(string mDataProvider, string mXamlFile, string mTableXamlLocation, string mTableName) {
-				var dataProvider = new TextDataProvider(mDataProvider);
+			MemoryStream ModifyXamlUsingTextProvider(string inDataProvider, string inXamlFile, string inTableXamlLocation, string inTableName) {
+				var dataProvider = new TextDataProvider(inDataProvider);
 				var xamlDoc = new XmlDocument();
-				var xamlFile = new FileStream(mXamlFile, FileMode.Open);
+				using var xamlFile = new FileStream(inXamlFile, FileMode.Open);
 				xamlDoc.Load(xamlFile);
 			
 				var nsmgr = new XmlNamespaceManager(xamlDoc.NameTable);
 				nsmgr.AddNamespace("x", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
 			
-				var itemsTable = xamlDoc.DocumentElement.SelectSingleNode(mTableXamlLocation + "[@Name='" + mTableName + "']", nsmgr);
+				var itemsTable = xamlDoc.DocumentElement.SelectSingleNode(inTableXamlLocation + "[@Name='" + inTableName + "']", nsmgr);
 			
 				for (int i = 1; i < dataProvider.Count; i++) {
 					var rowGroup = itemsTable.LastChild;
@@ -1204,12 +1250,15 @@ namespace ExampleTests {
 			
 				var memStream = new MemoryStream();
 				xamlDoc.Save(memStream);
-				xamlFile.Close();
 				return memStream;
 			}
 			// End Part:
 			// Part: 2 of 3
-			using var stm = ModifyXamlUsingTextProvider(null, null, null, null);
+			string dataProvider = null, xamlFile = null, tableXamlLocation = null, tableName = null;
+			// ... user code to provide paths for these strings
+			if (dataProvider == null || xamlFile == null || tableXamlLocation == null || tableName == null)
+				return; // not provided
+			using var stm = ModifyXamlUsingTextProvider(dataProvider, xamlFile, tableXamlLocation, tableName);
 			var page = XamlReader.Load(stm) as System.Windows.Controls.Page;
 			var docViewer = LogicalTreeHelper.FindLogicalNode(page, "DocViewer") as FlowDocumentPageViewer;
 			page.Content = null;
@@ -1246,7 +1295,7 @@ namespace ExampleTests {
 			doc.Width = 24;
 			doc.Color.String = "120 0 0";
 			doc.AddArc(0, 270, 300, 400, 200, 300);
-			doc.Save(Server.MapPath("docaddarc.pdf"));
+			doc.Save("docaddarc.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1280,7 +1329,7 @@ namespace ExampleTests {
 					}
 				}
 			}
-			doc.Save(Server.MapPath("docaddbookmark.pdf"));
+			doc.Save("docaddbookmark.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1296,11 +1345,11 @@ namespace ExampleTests {
 			string text = "Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.";
 			doc.Rect.Inset(20, 40);
 			doc.FontSize = 96;
-			string path = Server.MapPath("../mypics/cmyk.icc");
+			string path = "../mypics/cmyk.icc";
 			doc.ColorSpace = doc.AddColorSpaceFile(path);
 			doc.Color.String = "200 20 20 20";
 			doc.AddText(text);
-			doc.Save(Server.MapPath("docaddcolorspacefile.pdf"));
+			doc.Save("docaddcolorspacefile.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1322,7 +1371,7 @@ namespace ExampleTests {
 				doc.AddText(doc.Color.Gray.ToString());
 				doc.Rect.Move(25, -50);
 			}
-			doc.Save(Server.MapPath("docaddcolorspacespot.pdf"));
+			doc.Save("docaddcolorspacespot.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1343,7 +1392,7 @@ namespace ExampleTests {
 			font = "Helvetica-Bold";
 			doc.Font = doc.AddFont(font);
 			doc.AddText(font);
-			doc.Save(Server.MapPath("docaddfont.pdf"));
+			doc.Save("docaddfont.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1360,7 +1409,7 @@ namespace ExampleTests {
 			doc.Page = doc.AddPage();
 			doc.Transform.Rotate(20, 100, 100);
 			doc.AddGrid();
-			doc.Save(Server.MapPath("docaddgrid.pdf"));
+			doc.Save("docaddgrid.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1373,14 +1422,13 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docaddimagebitmap() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			string path = Server.MapPath("../mypics/mypic.png");
+			string path = "../mypics/mypic.png";
 			using var bm = new Bitmap(path);
 			doc.Rect.Inset(20, 20);
 			doc.Color.String = "0 0 200";
 			doc.FillRect();
 			doc.AddImageBitmap(bm, true);
-			bm.Dispose();
-			doc.Save(Server.MapPath("docaddimagebitmap.pdf"));
+			doc.Save("docaddimagebitmap.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1397,7 +1445,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docaddimagecopy() {
 			// Part: 1 of 2
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			int count = doc.PageCount;
 			// End Part:
 			// Part: 2 of 2
@@ -1406,13 +1454,13 @@ namespace ExampleTests {
 				doc.PageNumber = i;
 				doc.Layer = doc.LayerCount + 1;
 				if (i == 1) {
-					string path = Server.MapPath("../mypics/light.jpg");
+					string path = "../mypics/light.jpg";
 					id = doc.AddImageFile(path, 1);
 				}
 				else
 					doc.AddImageCopy(id);
 			}
-			doc.Save(Server.MapPath("watermark.pdf"));
+			doc.Save("watermark.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1429,7 +1477,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docaddimagedoc() {
 			// Part: 1 of 4
 			using var src = new Doc();
-			src.Read(Server.MapPath("../Rez/spaceshuttle.pdf"));
+			src.Read("../Rez/spaceshuttle.pdf");
 			int count = src.PageCount;
 			// End Part:
 			// Part: 2 of 4
@@ -1463,7 +1511,7 @@ namespace ExampleTests {
 			}
 			// End Part:
 			// Part: 4 of 4
-			dst.Save(Server.MapPath("fourup.pdf"));
+			dst.Save("fourup.pdf");
 			// finished
 			// End Part:
 		}
@@ -1478,9 +1526,9 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			doc.Rect.String = "0 0 510 638";
-			string path = Server.MapPath("../mypics/pic.jpg");
+			string path = "../mypics/pic.jpg";
 			doc.AddImageFile(path, 1);
-			doc.Save(Server.MapPath("docaddimage.pdf"));
+			doc.Save("docaddimage.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1494,13 +1542,13 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docaddimageobject() {
 			// Part: 1 of 1
 			using var img = new XImage();
-			img.SetFile(Server.MapPath("../mypics/mypic.gif"));
+			img.SetFile("../mypics/mypic.gif");
 			using Doc doc = new Doc();
 			doc.Color.String = "200 200 200";
 			doc.FillRect();
 			doc.Rect.String = "0 0 480 640";
 			doc.AddImageObject(img, true);
-			doc.Save(Server.MapPath("docaddimageobject.pdf"));
+			doc.Save("docaddimageobject.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1514,14 +1562,14 @@ namespace ExampleTests {
 		//
 		// File Start: True .\5-abcpdf\doc\1-methods\addimagetochain.htm
 		public static void Ex5_abcpdf_docaddimagetochain() {
-			// Part: 1 of 5
+			// Part: 1 of 4
 			using var doc = new Doc();
 			doc.Rect.Inset(72, 144);
 			// End Part:
-			// Part: 2 of 5
+			// Part: 2 of 4
 			int id = doc.AddImageUrl("http://www.yahoo.com/");
 			// End Part:
-			// Part: 3 of 5
+			// Part: 3 of 4
 			while (true) {
 				doc.FrameRect();
 				if (!doc.Chainable(id))
@@ -1530,14 +1578,8 @@ namespace ExampleTests {
 				id = doc.AddImageToChain(id);
 			}
 			// End Part:
-			// Part: 4 of 5
-			for (int i = 1; i <= doc.PageCount; i++) {
-				doc.PageNumber = i;
-				doc.Flatten();
-			}
-			// End Part:
-			// Part: 5 of 5
-			doc.Save(Server.MapPath("pagedhtml.pdf"));
+			// Part: 4 of 4
+			doc.Save("paged_html.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1551,7 +1593,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			doc.AddImageUrl("http://www.google.com/");
-			doc.Save(Server.MapPath("htmlimport.pdf"));
+			doc.Save("htmlimport.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1570,7 +1612,7 @@ namespace ExampleTests {
 			doc.AddLine(-50, 100, 999, 100);
 			doc.Color.String = "0 255 0";
 			doc.AddLine(-50, 400, 999, 400);
-			doc.Save(Server.MapPath("docaddline.pdf"));
+			doc.Save("docaddline.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1605,14 +1647,14 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docaddobject() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			if (doc.GetInfo(-1, "/Info") == "")
 				doc.SetInfo(-1, "/Info:Ref", doc.AddObject("<< >>").ToString());
 			doc.SetInfo(-1, "/Info*/Author:Text", "Arthur Dent");
 			doc.SetInfo(-1, "/Info*/Title:Text", "Musings on Life");
 			doc.SetInfo(-1, "/Info*/Subject:Text", "Philosophy");
 			doc.SetInfo(doc.Root, "/Metadata:Del", "");
-			doc.Save(Server.MapPath("docaddobject.pdf"));
+			doc.Save("docaddobject.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1631,7 +1673,7 @@ namespace ExampleTests {
 			doc.AddOval(true);
 			doc.Color.String = "0 255 0 128";
 			doc.AddOval(false);
-			doc.Save(Server.MapPath("docaddoval.pdf"));
+			doc.Save("docaddoval.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1653,7 +1695,7 @@ namespace ExampleTests {
 				string txt = $"Page {i}, ID={doc.Page}";
 				doc.AddText(txt);
 			}
-			doc.Save(Server.MapPath("docaddpage.pdf"));
+			doc.Save("docaddpage.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1672,7 +1714,7 @@ namespace ExampleTests {
 			doc.AddPie(0, 90, true);
 			doc.Color.String = "0 255 0";
 			doc.AddPie(180, 270, false);
-			doc.Save(Server.MapPath("docaddpie.pdf"));
+			doc.Save("docaddpie.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1691,7 +1733,7 @@ namespace ExampleTests {
 			doc.AddPoly("124 158 300 700 476 158 15 493 585 493 124 158", true);
 			doc.Color.String = "0 255 0 a128";
 			doc.AddPoly("124 158 300 700 476 158 15 493 585 493 124 158", false);
-			doc.Save(Server.MapPath("docaddpoly.pdf"));
+			doc.Save("docaddpoly.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1724,7 +1766,7 @@ namespace ExampleTests {
 			doc.AddText("Belgae, aliam Aquitani. ");
 			doc.Font = font2;
 			doc.AddText("tertiam Galli appellantur");
-			doc.Save(Server.MapPath("docaddtext.pdf"));
+			doc.Save("docaddtext.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1739,7 +1781,7 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.FontSize = 72;
 			doc.AddTextStyled("<b>Gallia</b> est omnis divisa in partes tres, quarum unam incolunt <b>Belgae</b>, aliam <b>Aquitani</b>, tertiam qui ipsorum lingua <b>Celtae</b>, nostra <b>Galli</b> appellantur.");
-			doc.Save(Server.MapPath("docaddhtml.pdf"));
+			doc.Save("docaddhtml.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1758,10 +1800,10 @@ namespace ExampleTests {
 			doc.Color.SetRgb(200, 200, 255);
 			doc.FillRect();
 			var pm = new PixMap(doc.ObjectSoup);
-			using var img = (Bitmap)Bitmap.FromFile(Server.MapPath("mypics/mypic.png"));
+			using var img = (Bitmap)Bitmap.FromFile("../mypics/mypic.png");
 			pm.SetBitmap(img, true);
 			doc.AddXObject(pm);
-			doc.Save(Server.MapPath("examplePixMapBitmap.pdf"));
+			doc.Save("examplePixMapBitmap.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1784,7 +1826,7 @@ namespace ExampleTests {
 			doc2.TextStyle.VPos = 0.5;
 			doc2.AddText("World");
 			doc1.Append(doc2);
-			doc1.Save(Server.MapPath("docjoin.pdf"));
+			doc1.Save("docjoin.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1798,12 +1840,12 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docdelete() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			int id1 = doc.AddImageFile(path, 1);
 			int id2 = doc.GetInfoInt(id1, "XObject");
 			int comps = doc.GetInfoInt(id2, "Components");
 			if (comps == 4) doc.Delete(id1);
-			doc.Save(Server.MapPath("docdelete.pdf"));
+			doc.Save("docdelete.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1821,7 +1863,7 @@ namespace ExampleTests {
 			string font = "Comic Sans MS";
 			doc.Font = doc.EmbedFont(font);
 			doc.AddText(font);
-			doc.Save(Server.MapPath("docembedfont.pdf"));
+			doc.Save("docembedfont.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1838,7 +1880,7 @@ namespace ExampleTests {
 			doc.Rect.Inset(200, 100);
 			doc.Color.Blue = 255;
 			doc.FillRect();
-			doc.Save(Server.MapPath("docfillrect.pdf"));
+			doc.Save("docfillrect.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1854,7 +1896,7 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.Rect.Inset(50, 100);
 			doc.FrameRect();
-			doc.Save(Server.MapPath("docframerect.pdf"));
+			doc.Save("docframerect.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1868,7 +1910,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docgetinfo() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			int id1 = doc.AddImageFile(path, 1);
 			int id2 = doc.GetInfoInt(id1, "XObject");
 			string theWidth = doc.GetInfo(id2, "Width");
@@ -1888,7 +1930,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docread() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			doc.FontSize = 500;
 			doc.Color.String = "255 0 0";
 			doc.TextStyle.HPos = 0.5;
@@ -1898,7 +1940,7 @@ namespace ExampleTests {
 				doc.PageNumber = i;
 				doc.AddText(i.ToString());
 			}
-			doc.Save(Server.MapPath("docread.pdf"));
+			doc.Save("docread.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1911,7 +1953,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docremappages() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			doc.FontSize = 500;
 			doc.Color.String = "255 0 0";
 			doc.TextStyle.HPos = 0.5;
@@ -1924,7 +1966,7 @@ namespace ExampleTests {
 				pages.Add(count - i + 1);
 			}
 			doc.RemapPages(pages.ToArray());
-			doc.Save(Server.MapPath("docremappages.pdf"));
+			doc.Save("docremappages.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1939,7 +1981,7 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.FontSize = 96;
 			doc.AddText("Hello World");
-			doc.Save(Server.MapPath("docsave.pdf"));
+			doc.Save("docsave.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1953,12 +1995,12 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docsetinfo() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			int pages = doc.GetInfoInt(doc.Root, "Pages");
 			int page2 = doc.GetInfoInt(pages, "Page 2");
 			string action = $"[ {page2} 0 R /Fit ]";
 			doc.SetInfo(doc.Root, "/OpenAction", action);
-			doc.Save(Server.MapPath("docsetinfo.pdf"));
+			doc.Save("docsetinfo.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1973,7 +2015,7 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.Color.String = "255 0 0";
 			doc.FillRect();
-			doc.Save(Server.MapPath("doccolor.pdf"));
+			doc.Save("doccolor.pdf");
 			// End Part:
 		}
 		// File End:
@@ -1991,7 +2033,7 @@ namespace ExampleTests {
 			doc.Rect.Inset(20, 20);
 			
 			using var img = new XImage();
-			img.SetFile(Server.MapPath("../mypics/mypic.jpg"));
+			img.SetFile("../mypics/mypic.jpg");
 			int id = doc.AddImageObject(img, false);
 			
 			id = doc.GetInfoInt(id, "XObject");
@@ -2001,7 +2043,7 @@ namespace ExampleTests {
 			doc.SetInfo(id, "/ColorSpace:Ref", theCS.ToString());
 			doc.SetInfo(id, "/Decode", "[1 0]");
 			
-			doc.Save(Server.MapPath("doccolorspace.pdf"));
+			doc.Save("doccolorspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2021,7 +2063,7 @@ namespace ExampleTests {
 			doc.Encryption.SetCryptMethods(CryptMethodType.AESV3);
 			doc.Encryption.CanCopy = false;
 			doc.Encryption.OwnerPassword = "owner";
-			doc.Save(Server.MapPath("docencrypt.pdf"));
+			doc.Save("docencrypt.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2040,7 +2082,7 @@ namespace ExampleTests {
 			doc.AddText("Helvetica Text.");
 			doc.Font = doc.AddFont("Courier");
 			doc.AddText("Courier Text.");
-			doc.Save(Server.MapPath("docfont.pdf"));
+			doc.Save("docfont.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2058,7 +2100,7 @@ namespace ExampleTests {
 			doc.AddText("Small ");
 			doc.FontSize = 192;
 			doc.AddText("Big");
-			doc.Save(Server.MapPath("docfontsize.pdf"));
+			doc.Save("docfontsize.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2077,7 +2119,7 @@ namespace ExampleTests {
 			doc.Page = doc.AddPage();
 			doc.MediaBox.String = "B5";
 			doc.Page = doc.AddPage();
-			doc.Save(Server.MapPath("docmediabox.pdf"));
+			doc.Save("docmediabox.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2095,7 +2137,7 @@ namespace ExampleTests {
 			doc.Color.String = "0 120 0";
 			doc.Options = "[6 10] 6 d";
 			doc.AddArc(0, 270, 300, 400, 200, 300);
-			doc.Save(Server.MapPath("docoptions.pdf"));
+			doc.Save("docoptions.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2114,7 +2156,7 @@ namespace ExampleTests {
 			doc.AddText("Page One");
 			doc.Page = doc.AddPage();
 			doc.AddText("Page Two");
-			doc.Save(Server.MapPath("docpage.pdf"));
+			doc.Save("docpage.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2134,7 +2176,7 @@ namespace ExampleTests {
 				doc.Pos.Y = i * 80;
 				doc.AddText($"Pos = {doc.Pos}");
 			}
-			doc.Save(Server.MapPath("docpos.pdf"));
+			doc.Save("docpos.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2152,7 +2194,7 @@ namespace ExampleTests {
 				doc.FrameRect();
 				doc.Rect.Inset(20, 20);
 			}
-			doc.Save(Server.MapPath("docrect.pdf"));
+			doc.Save("docrect.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2166,7 +2208,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_docroot() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/mydoc.pdf"));
+			doc.Read("../mypics/mydoc.pdf");
 			string vers = doc.GetInfo(doc.Root, "Version");
 			string names = doc.GetInfo(doc.Root, "/Names");
 			string pages = doc.GetInfo(doc.Root, "pages");
@@ -2199,7 +2241,7 @@ namespace ExampleTests {
 			doc.AddText("Red Helvetica-Oblique\r\n\r\n");
 			doc.String = state.Pop();
 			doc.AddText("Black Helvetica again\r\n\r\n");
-			doc.Save(Server.MapPath("savestate.pdf"));
+			doc.Save("savestate.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2221,7 +2263,7 @@ namespace ExampleTests {
 			doc.TextStyle.Indent = 64;
 			doc.TextStyle.ParaSpacing = 32;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("doctextstyle.pdf"));
+			doc.Save("doctextstyle.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2247,7 +2289,7 @@ namespace ExampleTests {
 				doc.Rect.Position(i, 0);
 				doc.AddText(i.ToString());
 			}
-			doc.Save(Server.MapPath("doctopdown.pdf"));
+			doc.Save("doctopdown.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2270,7 +2312,7 @@ namespace ExampleTests {
 			doc.FrameRect();
 			doc.FontSize = 24;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("doctransform.pdf"));
+			doc.Save("doctransform.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2288,7 +2330,7 @@ namespace ExampleTests {
 			doc.AddLine(10, 10, 300, 300);
 			doc.Width = 20;
 			doc.AddLine(10, 300, 300, 10);
-			doc.Save(Server.MapPath("docwidth.pdf"));
+			doc.Save("docwidth.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2309,7 +2351,7 @@ namespace ExampleTests {
 				doc.AddText(doc.Color.Alpha.ToString());
 				doc.Rect.Move(25, -50);
 			}
-			doc.Save(Server.MapPath("coloralpha.pdf"));
+			doc.Save("coloralpha.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2333,7 +2375,7 @@ namespace ExampleTests {
 			doc.Color.Components[1] = -50; // a range is -100 to +100
 			doc.Color.Components[2] = +50; // B range is -100 to +100
 			doc.AddOval(true);
-			doc.Save(Server.MapPath("examplelabcolorspace.pdf"));
+			doc.Save("examplelabcolorspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2350,7 +2392,7 @@ namespace ExampleTests {
 			doc.AddText("Hello World!");
 			doc.Encryption.Type = 5;
 			doc.Encryption.SetCryptMethods(CryptMethodType.AESV3);
-			doc.Save(Server.MapPath("setcryptmethods.pdf"));
+			doc.Save("setcryptmethods.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2387,7 +2429,7 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.Rect.Inset(100, 100);
 			doc.Rect.Top = 700;
-			doc.HtmlOptions.Engine = EngineType.Chrome123;
+			doc.HtmlOptions.Engine = EngineType.Chrome146;
 			doc.HtmlOptions.AddTags = true;
 			// The ABCGecko and MSHTML tagging format uses styles.
 			string html1 = "<!DOCTYPE html><html><head>" +
@@ -2405,7 +2447,7 @@ namespace ExampleTests {
 				"</head><body>" +
 				"<p id='p1' abcpdf-tag-visible>Gallia est omnis divisa in partes tres.</p>" +
 				"</body></html>";
-			string html = doc.HtmlOptions.Engine != EngineType.Chrome123 ? html1 : html2;
+			string html = doc.HtmlOptions.Engine != EngineType.Chrome146 ? html1 : html2;
 			int id = doc.AddImageHtml(html);
 			// Frame location of the tagged element
 			var tagRects = doc.HtmlOptions.GetTagRects(id);
@@ -2421,7 +2463,7 @@ namespace ExampleTests {
 			doc.Color.String = "255 0 0";
 			doc.AddText($"Tag ID \"{tagIds[0]}\":");
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsGetTagRects.pdf"));
+			doc.Save("HtmlOptionsGetTagRects.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2454,13 +2496,9 @@ namespace ExampleTests {
 			// End Part:
 			// Part: 3 of 4
 			doc.HtmlOptions.LinkDestinations(theList);
-			for (int i = 1; i <= doc.PageCount; i++) {
-				doc.PageNumber = i;
-				doc.Flatten();
-			}
 			// End Part:
 			// Part: 4 of 4
-			doc.Save(Server.MapPath("linkdestinations.pdf"));
+			doc.Save("linkdestinations.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2491,13 +2529,9 @@ namespace ExampleTests {
 			// End Part:
 			// Part: 3 of 4
 			doc.HtmlOptions.LinkPages();
-			for (int i = 1; i <= doc.PageCount; i++) {
-				doc.PageNumber = i;
-				doc.Flatten();
-			}
 			// End Part:
 			// Part: 4 of 4
-			doc.Save(Server.MapPath("linkpages.pdf"));
+			doc.Save("linkpages.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2508,7 +2542,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xhtmloptions2_forchrome() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.HtmlOptions.Engine = EngineType.Chrome123;
+			doc.HtmlOptions.Engine = EngineType.Chrome146;
 			doc.HtmlOptions.ForChrome.AddLinks = true;
 			
 			// You can store a reference to the filter to reduce code repetition
@@ -2518,7 +2552,7 @@ namespace ExampleTests {
 			options.AddTags = true;
 			
 			doc.AddImageUrl("http://www.websupergoo.com");
-			doc.Save(Server.MapPath("wsg.pdf"));
+			doc.Save("wsg1.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2538,7 +2572,7 @@ namespace ExampleTests {
 			options.AddLinks = true;
 			
 			doc.AddImageUrl("http://www.websupergoo.com");
-			doc.Save(Server.MapPath("wsg.pdf"));
+			doc.Save("wsg2.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2559,7 +2593,7 @@ namespace ExampleTests {
 			options.AutoTruncate = true;
 			
 			doc.AddImageUrl("http://www.websupergoo.com");
-			doc.Save(Server.MapPath("wsg.pdf"));
+			doc.Save("wsg3.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2579,7 +2613,7 @@ namespace ExampleTests {
 			options.UseScript = false;
 			
 			doc.AddImageUrl("http://www.websupergoo.com");
-			doc.Save(Server.MapPath("wsg.pdf"));
+			doc.Save("wsg4.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2596,7 +2630,7 @@ namespace ExampleTests {
 			doc.HtmlOptions.AddForms = true;
 			int id = doc.AddImageUrl("https://www.nasa.gov/forms/submit-a-question-for-nasa/");
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsAddForms.pdf"));
+			doc.Save("HtmlOptionsAddForms.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2613,13 +2647,13 @@ namespace ExampleTests {
 			// Render html page with default browser width
 			doc.AddImageUrl(url);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsBrowserWidth0.pdf"));
+			doc.Save("HtmlOptionsBrowserWidth0.pdf");
 			doc.Clear();
 			// Render html page with browser width = 300
 			doc.HtmlOptions.BrowserWidth = 300;
 			doc.AddImageUrl(url);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsBrowserWidth300.pdf"));
+			doc.Save("HtmlOptionsBrowserWidth300.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2633,7 +2667,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xhtmloptionsfireshield() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.HtmlOptions.Engine = EngineType.Chrome123;
+			doc.HtmlOptions.Engine = EngineType.Chrome146;
 			doc.HtmlOptions.FireShield.Rules.Add(new XHtmlFireShield.PathRule(@"C:\Windows\*.drv", XHtmlFireShield.PathRule.AccessType.Allow));
 			int id = doc.AddImageUrl("https://www.google.com/");
 			// ...
@@ -2660,7 +2694,7 @@ namespace ExampleTests {
 			doc.HtmlOptions.HideBackground = true;
 			doc.AddImageUrl(url);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsHideBackground.pdf"));
+			doc.Save("HtmlOptionsHideBackground.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2685,7 +2719,7 @@ namespace ExampleTests {
 			doc.FontSize = 96;
 			doc.AddText(theLog.ToString());
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsCallback.pdf"));
+			doc.Save("HtmlOptionsCallback.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2713,7 +2747,7 @@ namespace ExampleTests {
 			// Render html page
 			doc.AddImageUrl(uri);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsEmbedCallback.pdf"));
+			doc.Save("HtmlOptionsEmbedCallback.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2754,7 +2788,7 @@ namespace ExampleTests {
 			doc.HtmlOptions.NoCookie = true;
 			doc.HtmlOptions.PageLoadMethod = PageLoadMethodType.MonikerForHtml;
 			int id = doc.AddImageUrl(url);
-			doc.Save(Server.MapPath("HttpHeaders.pdf"));
+			doc.Save("HttpHeaders.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2772,13 +2806,13 @@ namespace ExampleTests {
 			doc.HtmlOptions.ImageQuality = 5;
 			doc.AddImageUrl(uri);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsImageQuality5.pdf"));
+			doc.Save("HtmlOptionsImageQuality5.pdf");
 			doc.Clear();
 			// Set lossless image quality for HTML rendering
 			doc.HtmlOptions.ImageQuality = 101;
 			doc.AddImageUrl(uri);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsImageQuality101.pdf"));
+			doc.Save("HtmlOptionsImageQuality101.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2799,7 +2833,7 @@ namespace ExampleTests {
 			// Add HTML page
 			doc.AddImageUrl(uri);
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsLogon.pdf"));
+			doc.Save("HtmlOptionsLogon.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2827,7 +2861,7 @@ namespace ExampleTests {
 				// Page couldn't be loaded
 			}
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsRetryCount.pdf"));
+			doc.Save("HtmlOptionsRetryCount.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2868,7 +2902,7 @@ namespace ExampleTests {
 				int id = doc.AddImageUrl(links[i] as string);
 				// Links from the rendered page
 				string allLinks = doc.HtmlOptions.GetScriptReturn(id);
-				string[] newLinks = allLinks.Split(new char[] { ',' });
+				string[] newLinks = allLinks.Split([ ',' ]);
 				foreach (string link in newLinks) {
 					// Check to see if we allready rendered this page
 					if (links.BinarySearch(link) < 0) {
@@ -2892,13 +2926,8 @@ namespace ExampleTests {
 			}
 			// Link pages together
 			doc.HtmlOptions.LinkPages();
-			// Flatten all pages
-			for (int i = 1; i <= doc.PageCount; i++) {
-				doc.PageNumber = i;
-				doc.Flatten();
-			}
 			// Save the document
-			doc.Save(Server.MapPath("HtmlOptionsJavaScript.pdf"));
+			doc.Save("HtmlOptionsJavaScript.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2915,7 +2944,7 @@ namespace ExampleTests {
 			using var img = new XImage();
 			using var doc = new Doc();
 			// read the data from a file
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			using var stream = File.OpenRead(path);
 			byte[] theData = new byte[stream.Length];
 			stream.Read(theData, 0, (int)stream.Length);
@@ -2923,7 +2952,7 @@ namespace ExampleTests {
 			img.SetData(theData);
 			doc.Rect.Inset(20, 20);
 			doc.AddImageObject(img, false);
-			doc.Save(Server.MapPath("imagesetdata.pdf"));
+			doc.Save("imagesetdata.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2939,10 +2968,10 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var img = new XImage();
 			using var doc = new Doc();
-			img.SetFile(Server.MapPath("../mypics/mypic.jpg"));
+			img.SetFile("../mypics/mypic.jpg");
 			doc.Rect.Inset(20, 20);
 			doc.AddImageObject(img, false);
-			doc.Save(Server.MapPath("imagesetfile.pdf"));
+			doc.Save("imagesetfile.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2960,14 +2989,14 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			using var img = new XImage();
 			using var msk = new XImage();
-			img.SetFile(Server.MapPath("../mypics/mypic.jpg"));
-			msk.SetFile(Server.MapPath("../mypics/mymask.jpg"));
+			img.SetFile("../mypics/mypic.jpg");
+			msk.SetFile("../mypics/mymask.jpg");
 			img.SetMask(msk, true);
 			doc.Color.String = "0 0 0";
 			doc.FillRect();
 			doc.Rect.Inset(20, 20);
 			doc.AddImageObject(img, true);
-			doc.Save(Server.MapPath("imagesetmask.pdf"));
+			doc.Save("imagesetmask.pdf");
 			// End Part:
 		}
 		// File End:
@@ -2982,13 +3011,13 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_ximagesetstream() {
 			// Part: 1 of 1
 			using var img = new XImage();
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			using var stream = File.OpenRead(path);
 			img.SetStream(stream);
 			using var doc = new Doc();
 			doc.Rect.Inset(20, 20);
 			doc.AddImageObject(img, false);
-			doc.Save(Server.MapPath("imagesetstream.pdf"));
+			doc.Save("imagesetstream.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3001,13 +3030,13 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var img = new XImage();
 			using var doc = new Doc();
-			img.SetFile(Server.MapPath("../mypics/multipage.tif"));
+			img.SetFile("../mypics/multipage.tif");
 			for (int i = 1; i <= img.FrameCount; i++) {
 				img.Frame = i;
 				doc.Page = doc.AddPage();
 				doc.AddImageObject(img, false);
 			}
-			doc.Save(Server.MapPath("imageframe.pdf"));
+			doc.Save("imageframe.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3020,7 +3049,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var img = new XImage();
 			using var doc = new Doc();
-			img.SetFile(Server.MapPath("../mypics/mypic.jpg"));
+			img.SetFile("../mypics/mypic.jpg");
 			doc.Rect.String = img.Selection.String;
 			doc.Rect.Magnify(0.5, 0.5);
 			doc.Rect.Position(100, 30);
@@ -3029,7 +3058,7 @@ namespace ExampleTests {
 			doc.Rect.String = img.Selection.String;
 			doc.Rect.Position(170, 400);
 			doc.AddImageObject(img, false);
-			doc.Save(Server.MapPath("imageselect.pdf"));
+			doc.Save("imageselect.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3054,7 +3083,7 @@ namespace ExampleTests {
 			pt.Offset(100, 150);
 			doc.Pos.Point = pt;
 			doc.AddText("Three");
-			doc.Save(Server.MapPath("xptpt.pdf"));
+			doc.Save("xptpt.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3197,7 +3226,7 @@ namespace ExampleTests {
 			doc.Rect.Rectangle = rc;
 			doc.FrameRect();
 			doc.AddText("Second Rectangle...");
-			doc.Save(Server.MapPath("xrectrectangle.pdf"));
+			doc.Save("xrectrectangle.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3226,14 +3255,14 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xrenderingantialiasimages() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/HyperX.pdf"));
+			doc.Read("../mypics/HyperX.pdf");
 			doc.Rect.Inset(200, 200);
 			// Render document with AntiAliasImages = true (default)
-			doc.Rendering.Save(Server.MapPath("RenderingAntiAliasImagesTrue.png"));
+			doc.Rendering.Save("RenderingAntiAliasImagesTrue.png");
 			// Render document with AntiAliasImages = false
 			doc.Rendering.AntiAliasImages = false;
 			// Save the image
-			doc.Rendering.Save(Server.MapPath("RenderingAntiAliasImagesFalse.png"));
+			doc.Rendering.Save("RenderingAntiAliasImagesFalse.png");
 			// End Part:
 		}
 		// File End:
@@ -3268,14 +3297,14 @@ namespace ExampleTests {
 			// Render the document with aliased image
 			doc.Rendering.DotsPerInch = 36;
 			doc.Rect.String = doc.MediaBox.String;
-			doc.Rendering.Save(Server.MapPath("RenderingAntiAliasPolygonsFalse.png"));
+			doc.Rendering.Save("RenderingAntiAliasPolygonsFalse.png");
 			// Add magnified antialiased image
 			doc.Rect.String = "5 20 605 560";
 			doc.AddImageBitmap(antiAliasedBitmap, false);
 			// Render the document with antialiased image
 			doc.Rendering.DotsPerInch = 36;
 			doc.Rect.String = doc.MediaBox.String;
-			doc.Rendering.Save(Server.MapPath("RenderingAntiAliasPolygonsTrue.png"));
+			doc.Rendering.Save("RenderingAntiAliasPolygonsTrue.png");
 			// End Part:
 		}
 		// File End:
@@ -3318,7 +3347,7 @@ namespace ExampleTests {
 			// Save render of pdf files
 			doc.Rendering.AntiAliasText = true;
 			doc.Rendering.DotsPerInch = 36;
-			doc.Rendering.Save(Server.MapPath("RenderingAntiAliasText.png"));
+			doc.Rendering.Save("RenderingAntiAliasText.png");
 			// End Part:
 		}
 		// File End:
@@ -3331,12 +3360,12 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xrenderingcolorspace() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.AddImage(Server.MapPath("../mypics/Shuttle.jpg"));
+			doc.AddImage("../mypics/Shuttle.jpg");
 			doc.Rect.String = doc.MediaBox.String;
 			// Render document in Gray colorspace
 			doc.Rendering.ColorSpace = XRendering.ColorSpaceType.Gray;
 			doc.Rendering.DotsPerInch = 36;
-			doc.Rendering.Save(Server.MapPath("RenderingColorSpace.png"));
+			doc.Rendering.Save("RenderingColorSpace.png");
 			// End Part:
 		}
 		// File End:
@@ -3350,7 +3379,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			using var image = new XImage();
-			image.SetFile(Server.MapPath("../mypics/Shuttle.jpg"));
+			image.SetFile("../mypics/Shuttle.jpg");
 			doc.Rect.String = image.Selection.String;
 			doc.AddImage(image);
 			// Save rendered image as black and white picture using Line spot function
@@ -3359,10 +3388,10 @@ namespace ExampleTests {
 			doc.Rendering.ColorSpace = XRendering.ColorSpaceType.Gray;
 			doc.Rendering.BitsPerChannel = 1;
 			doc.Rendering.DefaultHalftone = "Spot,30,100,Line";
-			doc.Rendering.Save(Server.MapPath("RenderingHalftoneLine.png"));
+			doc.Rendering.Save("RenderingHalftoneLine.png");
 			// Save rendered image as black and white picture using Diamond spot function
 			doc.Rendering.DefaultHalftone = "Spot,0,100,Diamond";
-			doc.Rendering.Save(Server.MapPath("RenderingHalftoneDiamond.png"));
+			doc.Rendering.Save("RenderingHalftoneDiamond.png");
 			// End Part:
 		}
 		// File End:
@@ -3375,14 +3404,14 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xrenderingdrawannotations() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/Annotations.pdf"));
+			doc.Read("../mypics/Annotations.pdf");
 			doc.Rect.Pin = XRect.Corner.TopLeft;
 			doc.Rect.Height = 300;
 			// Render document with DrawAnnotations (default)
-			doc.Rendering.Save(Server.MapPath("RenderingDrawAnnotationsTrue.png"));
+			doc.Rendering.Save("RenderingDrawAnnotationsTrue.png");
 			// Render document without DrawAnnotations
 			doc.Rendering.DrawAnnotations = false;
-			doc.Rendering.Save(Server.MapPath("RenderingDrawAnnotationsFalse.png"));
+			doc.Rendering.Save("RenderingDrawAnnotationsFalse.png");
 			// End Part:
 		}
 		// File End:
@@ -3402,10 +3431,10 @@ namespace ExampleTests {
 			doc.AddText("Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.");
 			doc.Rect.String = doc.MediaBox.String;
 			doc.Rendering.DotsPerInch = 36;
-			doc.Rendering.IccCmyk = Server.MapPath("../mypics/cmyk.icc");
+			doc.Rendering.IccCmyk = "../mypics/cmyk.icc";
 			doc.Rendering.ColorSpace = XRendering.ColorSpaceType.Rgb;
 			// Save the image
-			doc.Rendering.Save(Server.MapPath("RenderingIccCmyk.png"));
+			doc.Rendering.Save("RenderingIccCmyk.png");
 			// End Part:
 		}
 		// File End:
@@ -3419,7 +3448,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			// Open document with overprint
-			doc.Read(Server.MapPath("../mypics/Overprint.pdf"));
+			doc.Read("../mypics/Overprint.pdf");
 			// Render the document (we need to go to CMYK for overprint)
 			doc.Rendering.ColorSpace = XRendering.ColorSpaceType.Cmyk;
 			doc.Rendering.Overprint = true;
@@ -3433,7 +3462,7 @@ namespace ExampleTests {
 			theRgb.AddImageData(doc.Rendering.GetData(".tif"), 1);
 			theRgb.Rendering.DotsPerInch = 36;
 			theRgb.Rendering.ColorSpace = XRendering.ColorSpaceType.Rgb;
-			theRgb.Rendering.Save(Server.MapPath("RenderingOverprint.png"));
+			theRgb.Rendering.Save("RenderingOverprint.png");
 			// End Part:
 		}
 		// File End:
@@ -3465,7 +3494,7 @@ namespace ExampleTests {
 			// so that the underlying blue can show through
 			doc.AddImageBitmap(alphaBitmap, true);
 			// Save render of pdf
-			doc.Rendering.Save(Server.MapPath("RenderingSaveAlpha.png"));
+			doc.Rendering.Save("RenderingSaveAlpha.png");
 			// End Part:
 		}
 		// File End:
@@ -3479,7 +3508,7 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xrenderingsavecompression() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../Rez/spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			// set up the rendering parameters
 			doc.Rendering.ColorSpace = XRendering.ColorSpaceType.Gray;
 			doc.Rendering.BitsPerChannel = 1;
@@ -3492,7 +3521,7 @@ namespace ExampleTests {
 				doc.Rect.String = doc.CropBox.String;
 				doc.Rendering.SaveAppend = (i != 1);
 				doc.Rendering.SaveCompression = XRendering.Compression.G4;
-				doc.Rendering.Save(Server.MapPath("fax.tif"));
+				doc.Rendering.Save("fax.tif");
 			}
 			// End Part:
 		}
@@ -3506,14 +3535,14 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xrenderingsavequality() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/SpaceShuttlePage6.pdf"));
+			doc.Read("../mypics/SpaceShuttlePage6.pdf");
 			doc.Rendering.DotsPerInch = 36;
 			// Save at low quality
 			doc.Rendering.SaveQuality = 5;
-			doc.Rendering.Save(Server.MapPath("RenderingQuality5.jpg"));
+			doc.Rendering.Save("RenderingQuality5.jpg");
 			// Save at high quality
 			doc.Rendering.SaveQuality = 75;
-			doc.Rendering.Save(Server.MapPath("RenderingQuality75.jpg"));
+			doc.Rendering.Save("RenderingQuality75.jpg");
 			// End Part:
 		}
 		// File End:
@@ -3528,9 +3557,9 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xsaveoptionstemplate() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			doc.SaveOptions.Template = XSaveTemplateData.Template_OnePagePerFrame + "\0FrameRate:512";
-			doc.Save(Server.MapPath("swfsave.swf"));
+			doc.Save("swfsave_fr.swf");
 			// End Part:
 		}
 		// File End:
@@ -3544,7 +3573,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			#if NETFRAMEWORK // ignore
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			doc.SaveOptions.WritePageSeparator = delegate (int pageNum, XSaveOptions.ExportArgs e) {
 				var writer = (XmlWriter)e.Writer;
 				if (pageNum > 1) {
@@ -3556,8 +3585,7 @@ namespace ExampleTests {
 				writer.WriteString(string.Format("Page {0}", pageNum));
 				writer.WriteFullEndElement();
 			};
-			doc.Save(Server.MapPath("PageSeparator.htm"));
-			doc.Dispose();
+			doc.Save("PageSeparator.htm");
 			#endif // ignore
 			// End Part:
 		}
@@ -3572,10 +3600,177 @@ namespace ExampleTests {
 		public static void Ex5_abcpdf_xsavetemplatedatasetmeasureresolution() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			doc.SaveOptions.TemplateData = new XSaveTemplateData();
 			doc.SaveOptions.TemplateData.SetMeasureResolution(72);
-			doc.Save(Server.MapPath("swfsave.swf"));
+			doc.Save("swfsave_mr.swf");
+			// End Part:
+		}
+		// File End:
+
+		// Example code for Open Function of XTagging Class for ABCpdf .NET
+		// 
+		// The following code adds a list of animals. Normally this list would go directly into
+		// the Document root level tag. However here we first open a Section, Div and P (paragraph)
+		// so that the list will go inside those elements instead.
+		//
+		// File Start: True .\5-abcpdf\xtagging\1-methods\04-open.htm
+		public static void Ex5_abcpdf_xtagging04_open() {
+			// Part: 1 of 1
+			using var doc = new Doc();
+			doc.Font = doc.EmbedFont("Arial");
+			doc.TextStyle.Size = 48;
+			doc.Rect.Inset(50, 50);
+			string[] animals = ["Panda", "Koala", "Red panda", "Otter", "Kitten",
+				"Puppy", "Bunny", "Hedgehog", "Penguin", "Dolphin", "Seal", "Fox",
+				"Squirrel", "Baby elephant", "Fawn", "Chick", "Hamster",
+				"Guinea pig", "Ferret", "Quokka"];
+			var sb = new StringBuilder();
+			sb.AppendLine("<ul>");
+			foreach (var animal in animals)
+				sb.AppendLine($"<li>{animal}</li>");
+			sb.AppendLine("</ul>");
+			doc.TextStyle.AutoTag = true;
+			doc.Tag.Open("Sect", "Div", "P");
+			int id = doc.AddTextStyled(sb.ToString());
+			doc.FrameRect();
+			while (true) {
+				var tl = (TextLayer)doc.ObjectSoup[id];
+				if (!tl.Truncated)
+					break;
+				doc.Page = doc.AddPage();
+				id = doc.AddTextStyled("", id);
+				doc.FrameRect();
+			}
+			doc.Tag.Close("P", "Div", "Sect");
+			doc.Save("doctagopen.pdf");
+			doc.Read("doctagopen.pdf");
+			var ts = doc.Tag.GetStructure();
+			var str = ts.ExtractStructure();
+			File.WriteAllText("doctagopen.txt", str.ToString());
+			// End Part:
+		}
+		// File End:
+
+		// Example code for Close Function of XTagging Class for ABCpdf .NET
+		// 
+		// This example shows how to add tagged content to a document which is already tagged.
+		//
+		// File Start: True .\5-abcpdf\xtagging\1-methods\05-close.htm
+		public static void Ex5_abcpdf_xtagging05_close() {
+			// Part: 1 of 1
+			using var doc = new Doc();
+			doc.Read("../Rez/spacex_nasa_dragon.pdf");
+			doc.Font = doc.EmbedFont("Arial", LanguageType.Unicode, false, true, false);
+			doc.TextStyle.Size = 18;
+			doc.Rect.SetRect(0, 0, doc.MediaBox.Width, 100);
+			doc.TextStyle.HPos = 0.5;
+			doc.TextStyle.Bold = true;
+			doc.Color.SetRgb(200, 00, 0);
+			doc.Tag.Open("P", "Span");
+			doc.AddText("This is a NASA document\r\n");
+			doc.Tag.CloseOpen("Span");
+			doc.AddText("National Aeronautics and Space Administration");
+			doc.Tag.Close("Span", "P");
+			doc.Save("addtagstotaggeddoc.pdf");
+			// End Part:
+		}
+		// File End:
+
+		// Example code for AddFocus Function of XTagging Class for ABCpdf .NET
+		// 
+		// The following code adds sequence of tagged areas to a page. We first delete any existing
+		// structure so we have a clean slate. The first Artifact covers the entire page so
+		// that anything which is not tagged later will become an artifact. The next tags create
+		// a nested sequence of H1, H2 and P elements.
+		//
+		// File Start: True .\5-abcpdf\xtagging\1-methods\08-addfocus.htm
+		public static void Ex5_abcpdf_xtagging08_addfocus() {
+			// Part: 1 of 1
+			using var doc = new Doc();
+			doc.Read("../Rez/spacex_nasa_dragon.pdf");
+			Atom.RemoveItem(doc.ObjectSoup.Catalog.Atom, "StructTreeRoot");
+			var st = doc.Tag.GetStructure();
+			st.Detag();
+			st.Title = "SpaceX NASA Dragon";
+			st.CreateAsRequired();
+			var div = st.Root.AddKid("Document").AddKid("Div");
+			var artifact = new StructureElementElement(div) { EntryS = "Artifact" };
+			doc.Tag.AddFocus(artifact, doc.Rect).AddMcids = false;
+			var h1 = doc.Tag.AddFocus(div.AddKid("H1"), XRect.FromSides(0, 650, 600, 710)).Tag;
+			var h2 = doc.Tag.AddFocus(div.AddKid("H2"), XRect.FromSides(0, 620, 600, 650)).Tag;
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 580, 600, 620));
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 500, 600, 580));
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 440, 600, 500));
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 360, 600, 440));
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 270, 600, 360));
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 200, 600, 270));
+			doc.Tag.AddFocus(h2.AddKid("P"), XRect.FromSides(0, 100, 600, 200));
+			var focus = doc.Tag.AddFocus(div.AddKid("Figure"), XRect.FromSides(360, 480, 600, 650));
+			focus.Tag.EntryAlt = "Spacecraft in orbit over earth.";
+			// in later versions, instead of the next five lines, you can just use ...
+			var layout = new StandardLayoutAttributesElement(focus.Tag);
+			layout.EntryO = "Layout";
+			layout.EntryBBox = new RectangleElement(ArrayAtom.FromXRect(focus.Bounds), focus.Tag.Host);
+			focus.Tag.EntryA = new ArrayElement<Element>(focus.Tag);
+			focus.Tag.EntryA.Add(layout);
+			// ... focus.Tag.SetBBox(focus.Bounds);
+			doc.Tag.MakePdfUAConformant = true;
+			doc.Save("taggedarea.pdf");
+			st.UpdateActualText(true, true);
+			var txt = st.ExtractStructure();
+			File.WriteAllText("taggedarea.txt", txt.ToString());
+			// End Part:
+		}
+		// File End:
+
+		// Example code for OpaqueTypes Property of Focus Class for ABCpdf .NET
+		// 
+		// The following code detags the document leaving Artifacts behind. It then tags the
+		// entire pag as a Sect. When the output is exported, items previously marked as Artifacts
+		// - some images, the header, footer and page number- are not part of the Sect.
+		//
+		// File Start: True .\5-abcpdf\xtagging.focus\2-properties\opaquetypes.htm
+		public static void Ex5_abcpdf_xtagging_focusopaquetypes() {
+			// Part: 1 of 1
+			using var doc = new Doc();
+			doc.Read("../Rez/spacex_nasa_dragon.pdf");
+			var st = doc.Tag.GetStructure();
+			st.Detag(); // Artifacts will be left
+			st.CreateAsRequired();
+			var div = st.Root.AddKid("Document").AddKid("Div");
+			var focus = doc.Tag.AddFocus(div.AddKid("Sect"), doc.Rect);
+			focus.OpaqueTypes = new HashSet<string>(["Artifact"]);
+			doc.Save("opaquetags.pdf");
+			st.UpdateActualText(true, true);
+			st.MarkupStructure();
+			doc.Save("opaquetags.pdf");
+			// End Part:
+		}
+		// File End:
+
+		// Example code for AutoTag Property of XTextStyle Class for ABCpdf .NET
+		// 
+		// The following code creates a simple tagged document containg text and an image.
+		//
+		// File Start: True .\5-abcpdf\xtextstyle\2-properties\autotag.htm
+		public static void Ex5_abcpdf_xtextstyleautotag() {
+			// Part: 1 of 1
+			using var doc = new Doc();
+			string text = "From the attic window, snow-draped rooftops stretch into the distance, chimneys smoking softly. Icicles glitter in the pale sun. A quiet, frozen world.";
+			doc.Rect.Inset(20, 40);
+			doc.TextStyle.AutoTag = true;
+			doc.TextStyle.Size = 36;
+			doc.AddTextStyled($"<p>{text}</p>");
+			using var img = XImage.FromFile("../mypics/mypic.jpg", null);
+			doc.Rect.SetRect(100, 100, img.Width / 2, img.Height / 2);
+			var figure = doc.Tag.MakeTag("Figure");
+			figure.Attributes = new DictAtom();
+			figure.Attributes["Alt"] = new StringAtom("Snowy rooftops.");
+			doc.Tag.Open(figure);
+			doc.AddImageObject(img, true);
+			doc.Tag.Close(figure.Type);
+			doc.Save("simpletags.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3593,7 +3788,7 @@ namespace ExampleTests {
 			doc.TextStyle.Size = 96;
 			doc.TextStyle.Bold = true;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylebold.pdf"));
+			doc.Save("stylebold.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3616,7 +3811,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -300);
 			doc.TextStyle.CharSpacing = -10;
 			doc.AddText("Negative CharSpacing");
-			doc.Save(Server.MapPath("stylecspace.pdf"));
+			doc.Save("stylecspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3640,7 +3835,7 @@ namespace ExampleTests {
 			doc.FrameRect();
 			doc.TextStyle.HPos = 1.0;
 			doc.AddText("Right justified text...");
-			doc.Save(Server.MapPath("dochpos.pdf"));
+			doc.Save("dochpos.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3664,7 +3859,7 @@ namespace ExampleTests {
 			doc.TextStyle.ParaSpacing = 16;
 			doc.TextStyle.Indent = 48;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("styleindent.pdf"));
+			doc.Save("styleindent.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3683,7 +3878,7 @@ namespace ExampleTests {
 			doc.TextStyle.Size = 96;
 			doc.TextStyle.Italic = true;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("styleitalic.pdf"));
+			doc.Save("styleitalic.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3704,7 +3899,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -350);
 			doc.TextStyle.Justification = 1.0;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylejustification.pdf"));
+			doc.Save("stylejustification.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3716,7 +3911,7 @@ namespace ExampleTests {
 		// File Start: True .\5-abcpdf\xtextstyle\2-properties\kerning.htm
 		public static void Ex5_abcpdf_xtextstylekerning() {
 			// Part: 1 of 1
-			string text = File.ReadAllText(Server.MapPath("tableofcontents.txt"));
+			string text = File.ReadAllText("../Rez/tableofcontents.txt");
 			text = text.Replace("\r", "<br>"); // make our carriage returns into breaks
 			text = text.Replace(" ", "		 "); // make our indent at start of line into nbsp
 			using var doc = new Doc();
@@ -3725,7 +3920,7 @@ namespace ExampleTests {
 			doc.Rect.Inset(10, 10);
 			doc.Page = doc.AddPage();
 			doc.AddTextStyled(text.Replace(" ~", "<leader>.</leader>"));
-			doc.Save(Server.MapPath("TableOfContentsWithLeaders.pdf"));
+			doc.Save("TableOfContentsWithLeaders.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3749,7 +3944,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -250);
 			doc.TextStyle.LeftMargin = 200;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylemargin.pdf"));
+			doc.Save("stylemargin.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3773,7 +3968,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -350);
 			doc.TextStyle.LineSpacing = -20;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylelspace.pdf"));
+			doc.Save("stylelspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3795,7 +3990,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -300);
 			doc.TextStyle.Outline = 10;
 			doc.AddText("Outline 10");
-			doc.Save(Server.MapPath("styleoutline.pdf"));
+			doc.Save("styleoutline.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3818,7 +4013,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -350);
 			doc.TextStyle.ParaSpacing = 20;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylepspace.pdf"));
+			doc.Save("stylepspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3836,7 +4031,7 @@ namespace ExampleTests {
 			doc.AddText("Small ");
 			doc.TextStyle.Size = 192.5;
 			doc.AddText("Big");
-			doc.Save(Server.MapPath("stylesize.pdf"));
+			doc.Save("stylesize.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3854,7 +4049,7 @@ namespace ExampleTests {
 			doc.TextStyle.Size = 96;
 			doc.TextStyle.Strike = true;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylestrike.pdf"));
+			doc.Save("stylestrike.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3872,7 +4067,7 @@ namespace ExampleTests {
 			doc.TextStyle.Size = 96;
 			doc.TextStyle.Strike2 = true;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylestrike2.pdf"));
+			doc.Save("stylestrike2.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3905,7 +4100,7 @@ namespace ExampleTests {
 			doc.TextStyle.Size = 96;
 			doc.TextStyle.Underline = true;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("styleunderline.pdf"));
+			doc.Save("styleunderline.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3929,7 +4124,7 @@ namespace ExampleTests {
 			doc.FrameRect();
 			doc.TextStyle.VPos = 1.0;
 			doc.AddText("Bottom aligned text...");
-			doc.Save(Server.MapPath("docvpos.pdf"));
+			doc.Save("docvpos.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3953,7 +4148,7 @@ namespace ExampleTests {
 			doc.Rect.Move(0, -300);
 			doc.TextStyle.WordSpacing = -20;
 			doc.AddText(text);
-			doc.Save(Server.MapPath("stylewspace.pdf"));
+			doc.Save("stylewspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -3976,7 +4171,7 @@ namespace ExampleTests {
 			doc.Pos.String = "302 396";
 			doc.Transform.Invert();
 			doc.AddText("Inverted");
-			doc.Save(Server.MapPath("transforminvert.pdf"));
+			doc.Save("transforminvert.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4001,7 +4196,7 @@ namespace ExampleTests {
 			doc.Transform.Magnify(2, 1.5, 302, 396);
 			doc.AddText("Magnified");
 			doc.FrameRect();
-			doc.Save(Server.MapPath("transformmagnify.pdf"));
+			doc.Save("transformmagnify.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4026,7 +4221,7 @@ namespace ExampleTests {
 			doc.Pos.String = "302 396";
 			doc.AddText("Reset");
 			doc.FrameRect();
-			doc.Save(Server.MapPath("transformreset.pdf"));
+			doc.Save("transformreset.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4049,7 +4244,7 @@ namespace ExampleTests {
 				doc.Transform.Rotate(angle, 302, 396);
 				doc.AddText($"Rotated {angle}");
 			}
-			doc.Save(Server.MapPath("rotate.pdf"));
+			doc.Save("rotate.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4071,7 +4266,7 @@ namespace ExampleTests {
 			doc.Transform.Skew(1.5, 1.5, 20, 20);
 			doc.Color.String = "255 0 0"; // red
 			doc.FrameRect();
-			doc.Save(Server.MapPath("transformskew.pdf"));
+			doc.Save("transformskew.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4093,7 +4288,7 @@ namespace ExampleTests {
 			doc.Transform.Translate(200, 200);
 			doc.Color.String = "255 0 0"; // red
 			doc.FrameRect();
-			doc.Save(Server.MapPath("transformtranslate.pdf"));
+			doc.Save("transformtranslate.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4111,10 +4306,10 @@ namespace ExampleTests {
 			doc.TextStyle.Underline = true;
 			doc.AddText("Hello World rotated by 90 degrees");
 			doc.Page = doc.AddPage();
-			doc.Transform.AngleUnit = WebSupergoo.ABCpdf13.XTransform.AngleUnitType.Radians;
+			doc.Transform.AngleUnit = WebSupergoo.ABCpdf14.XTransform.AngleUnitType.Radians;
 			doc.Transform.Rotate(-1 * Math.PI / 2, doc.Rect.Width / 2, doc.Rect.Height / 2);
 			doc.AddText("Hello World rotated back by PI/2 radians");
-			doc.Save(Server.MapPath("transformrotate.pdf"));
+			doc.Save("transformrotate.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4128,7 +4323,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			bool isHybrid = false;
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			using (var eof = new ObjectSoup.Eof()) {
 				eof.Load(doc.ObjectSoup);
 				var xref = eof.XRef;
@@ -4156,7 +4351,7 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			var ro = new XReadOptions();
 			ro.OpenPortfolios = false;
-			doc.Read(Server.MapPath("Portfolio1.pdf"), ro);
+			doc.Read("../Rez/Portfolio1.pdf", ro);
 			var files = doc.ObjectSoup.Catalog.GetEmbeddedFiles();
 			foreach (var pair in files) {
 				var fileSpec = pair.Value;
@@ -4188,7 +4383,7 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_catalogmetadata() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/book.pdf"));
+			doc.Read("../mypics/book.pdf");
 			var md = doc.ObjectSoup.Catalog.Metadata;
 			if (md == null) {
 				md = new Metadata(doc.ObjectSoup);
@@ -4196,7 +4391,7 @@ namespace ExampleTests {
 			}
 			md.InfoSubject = "Finn Family Moomintroll";
 			md.InfoAuthor = "Tove Jansson";
-			doc.Save(Server.MapPath("metadata.pdf"));
+			doc.Save("metadata.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4217,7 +4412,7 @@ namespace ExampleTests {
 			doc.ColorSpace = cs.ID;
 			doc.Color.SetComponents(0.9); // gray
 			doc.AddOval(true);
-			doc.Save(Server.MapPath("examplecalgraycolorspace.pdf"));
+			doc.Save("examplecalgraycolorspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4239,7 +4434,7 @@ namespace ExampleTests {
 			doc.ColorSpace = cs.ID;
 			doc.Color.SetComponents(0.9, 0.1, 0.1); // red
 			doc.AddOval(true);
-			doc.Save(Server.MapPath("examplecalrgbcolorspace.pdf"));
+			doc.Save("examplecalrgbcolorspace.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4254,17 +4449,17 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_filespecificationfilespecification() {
 			// Part: 1 of 1
 			string[] files = {
-				"SignedDocument.pdf",
-				"spaceshuttle.pdf",
-				"Authorization.pdf",
-				"Portfolio1.pdf",
+				"../Rez/SignedDocument.pdf",
+				"../Rez/spaceshuttle.pdf",
+				"../Rez/Authorization.pdf",
+				"../Rez/Portfolio1.pdf",
 			};
 			using var doc = new Doc();
 			var fileSpecs = new List<Tuple<string, FileSpecification>>();
 			foreach (string file in files) {
 				byte[] data = null;
 				using (var subDoc = new Doc()) {
-					subDoc.Read(Server.MapPath(file));
+					subDoc.Read(file);
 					data = subDoc.GetData();
 				}
 				var embedFile = new EmbeddedFile(doc.ObjectSoup, data);
@@ -4288,9 +4483,86 @@ namespace ExampleTests {
 			doc.ObjectSoup.Catalog.Version = 17;
 			doc.SaveOptions.Linearize = false;
 			doc.SetInfo(doc.Root, "/Collection*/D:Text", files[0]);
-			doc.Save(Server.MapPath("createportfolio.pdf"));
+			doc.Save("createportfolio.pdf");
 			// End Part:
 		}
+		// File End:
+
+		// Example code for RuneWidths Property of FontObject Class for ABCpdf .NET
+		// 
+		// The example below shows how to add text on a curve and text flowing round a circle.
+		//
+		// File Start: True .\6-abcpdf.objects\fontobject\2-properties\runewidths.htm
+		public static void Ex6_abcpdf_objects_fontobjectrunewidths() {
+			// Part: 1 of 2
+			string font = "Comic Sans MS";
+			string text = "Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae...";
+			string theTitle = "Commentarii de Bello Gallico";
+			using var doc = new Doc();
+			doc.FontSize = 36;
+			doc.TextStyle.Kerning = XTextStyle.KerningType.None;
+			doc.Font = doc.EmbedFont(font, LanguageType.Latin, false, true, false);
+			// add some radial text in the top middle of the page
+			double cx = doc.MediaBox.Width * 0.5;
+			double cy = doc.MediaBox.Height * 0.6;
+			double r = doc.MediaBox.Width * 0.3;
+			CurvedText.AddRadial(doc, text, cx, cy, r, 225, true, false);
+			// add some curved text to a rectangle
+			double width = doc.MeasureText(theTitle);
+			doc.Rect.SetRect(100, 100, width, doc.FontSize * 1.5);
+			doc.FrameRect();
+			CurvedText2.AddCurved(doc, theTitle);
+			// save
+			doc.Save("ExampleCurvedText2.pdf");
+			// End Part:
+		}
+		// Part: 2 of 2
+		class CurvedText2 {
+			public static void AddCurved(Doc doc, string text) {
+				double halfWidth = doc.Rect.Width / 2;
+				double height = doc.Rect.Height - doc.TextStyle.Size;
+				double radius = ((halfWidth * halfWidth) + (height * height)) / (2 * height);
+				double centerX = doc.Rect.Left + halfWidth;
+				double centerY = doc.Rect.Bottom + radius + doc.TextStyle.Size;
+				double alpha = Math.Asin(halfWidth / radius) - Math.PI;
+				AddRadial(doc, text, centerX, centerY, radius, RadiansToDegrees(alpha), true, false);
+			}
+		
+			public static void AddRadial(Doc doc, string text, double centerX, double centerY, double radius, double startAngleDegrees, bool inside, bool clockwise) {
+				var font = doc.ObjectSoup[doc.Font] as FontObject;
+				var widths = font.RuneWidths;
+				int n = text.Length;
+				double a = DegreesToRadians(startAngleDegrees);
+				double fontWidthToRadians = doc.TextStyle.Size / (radius * 1000);
+				doc.Rect.String = doc.MediaBox.String;
+				for (int i = 0; i < n; i++) {
+					// work out position
+					double x = centerX + (Math.Sin(a) * radius);
+					double y = centerY + (Math.Cos(a) * radius);
+					// add a character
+					doc.Pos.X = x;
+					doc.Pos.Y = y;
+					doc.Transform.Reset();
+					double charRotation = inside ? RadiansToDegrees(-a) + 180 : RadiansToDegrees(-a);
+					doc.Transform.Rotate(charRotation, x, y);
+					doc.AddText(text[i].ToString());
+					// increment angle
+					var rune = new XRune(text[i]);
+					double da = (double)widths[rune] * fontWidthToRadians;
+					a += clockwise ? da : -da;
+				}
+				doc.Transform.Reset();
+			}
+		
+			private static double DegreesToRadians(double degrees) {
+				return degrees * Math.PI / 180;
+			}
+		
+			private static double RadiansToDegrees(double radians) {
+				return radians * 180 / Math.PI;
+			}
+		}
+		// End Part:
 		// File End:
 
 		// Example code for Widths Property of FontObject Class for ABCpdf .NET
@@ -4318,7 +4590,7 @@ namespace ExampleTests {
 			doc.FrameRect();
 			CurvedText.AddCurved(doc, theTitle);
 			// save
-			doc.Save(Server.MapPath("ExampleCurvedText.pdf"));
+			doc.Save("ExampleCurvedText.pdf");
 			// End Part:
 		}
 		// Part: 2 of 2
@@ -4408,7 +4680,7 @@ namespace ExampleTests {
 			doc.Width = 20;
 			doc.Color.String = "255 0 0";
 			AddDropShadow(doc, doc.AddPoly(star, false), 3, shift, -shift, blue);
-			doc.Save(Server.MapPath("dropshadows.pdf"));
+			doc.Save("dropshadows.pdf");
 			// End Part:
 			// Part: 2 of 2
 			void AddDropShadow(Doc doc, int id, double gaussianBlurRadius, double shadowHorizontalShift, double shadowVerticalShift, XColor shadowColor) {
@@ -4424,7 +4696,7 @@ namespace ExampleTests {
 					doc.Rendering.SaveAlpha = true;
 					var layer = doc.ObjectSoup[id] as Layer;
 					var page = doc.ObjectSoup[doc.Page] as Page;
-					var bm = page.GetBitmap(new Layer[] { layer });
+					var bm = page.GetBitmap([ layer ]);
 					// expand image if blur may move content off edges
 					int border = 0;
 					if (gaussianBlurRadius > 0) {
@@ -4452,7 +4724,7 @@ namespace ExampleTests {
 					var img = doc.ObjectSoup[pid] as ImageLayer;
 					var pm = img.PixMap;
 					pm.ClearData(); // this will remove any compression settings
-					pm.SetData(new byte[] { (byte)shadowColor.Red, (byte)shadowColor.Green, (byte)shadowColor.Blue });
+					pm.SetData([ (byte)shadowColor.Red, (byte)shadowColor.Green, (byte)shadowColor.Blue ]);
 					pm.Width = 1;
 					pm.Height = 1;
 					// The alpha channel is held as a separate soft mask and this is what will
@@ -4489,7 +4761,7 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_pagemakeformxobject() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/HyperX.pdf"));
+			doc.Read("../mypics/HyperX.pdf");
 			var page1 = doc.ObjectSoup[doc.Page] as Page;
 			var form = page1.MakeFormXObject();
 			doc.Transform.Magnify(0.5, 0.5, 0, 0);
@@ -4501,7 +4773,7 @@ namespace ExampleTests {
 			var layer = new StreamObject(doc.ObjectSoup);
 			layer.SetText(String.Format("q {0} cm /{1} Do Q ", doc.Transform.ToString(), name));
 			page2.AddLayer(layer);
-			doc.Save(Server.MapPath("exampleformxobject.pdf"));
+			doc.Save("exampleformxobject.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4516,7 +4788,7 @@ namespace ExampleTests {
 			doc.AddText("Hello World");
 			foreach (var page in doc.ObjectSoup.Catalog.Pages.GetPageArrayAll())
 				page.VectorizeText();
-			doc.Save(Server.MapPath("VectorizedText.pdf"));
+			doc.Save("VectorizedText.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4531,7 +4803,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			using var src = new Doc();
-			src.Read(Server.MapPath("landscape.pdf"));
+			src.Read("landscape.pdf");
 			int rotation = ((Page)src.ObjectSoup[src.Page]).Rotation;
 			bool landscape = src.MediaBox.Width > src.MediaBox.Height;
 			doc.Page = doc.AddPage();   // output is always in portrait
@@ -4561,7 +4833,7 @@ namespace ExampleTests {
 				}
 			}
 			doc.AddImageDoc(src, 1, null);
-			doc.Save(Server.MapPath("addtoportrait.pdf"));
+			doc.Save("addtoportrait.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4575,7 +4847,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			using var src = new Doc();
-			doc.Read(Server.MapPath("spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			doc.Rendering.DotsPerInch = 18;
 			var pages = doc.ObjectSoup.Catalog.Pages.GetPageArrayAll();
 			foreach (var page in pages) {
@@ -4583,7 +4855,7 @@ namespace ExampleTests {
 				using (var xi = XImage.FromData(doc.Rendering.GetData(".jpg"), null))
 					page.Thumbnail = PixMap.FromXImage(doc.ObjectSoup, xi);
 			}
-			doc.Save(Server.MapPath("embedthumbnails.pdf"));
+			doc.Save("embedthumbnails.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4598,7 +4870,7 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			using var doc = new Doc();
 			using var src = new Doc();
-			doc.Read(Server.MapPath("embedthumbnails.pdf"));
+			doc.Read("../Rez/embedthumbnails.pdf");
 			doc.Rendering.DotsPerInch = 18;
 			var pages = doc.ObjectSoup.Catalog.Pages.GetPageArrayAll();
 			foreach (var page in pages) {
@@ -4619,7 +4891,7 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_pixmaprecolor() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../Rez/spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			List<PixMap> theList = new List<PixMap>();
 			// find all the PixMap objects in the soup
 			foreach (IndirectObject obj in doc.ObjectSoup) {
@@ -4629,14 +4901,14 @@ namespace ExampleTests {
 			}
 			// add our destination color space
 			var cs = new ColorSpace(doc.ObjectSoup);
-			cs.IccProfile = new IccProfile(doc.ObjectSoup, Server.MapPath("../Rez/abccmyk.icc"));
+			cs.IccProfile = new IccProfile(doc.ObjectSoup, "../Rez/abccmyk.icc");
 			// convert images to our color space
 			for (int i = 0; i < theList.Count; i++) {
 				var p = theList[i];
 				p.Recolor(cs, RenderingIntent.Perceptual);
 				p.CompressJpeg(75);
 			}
-			doc.Save(Server.MapPath("pixmaprecolor.pdf"));
+			doc.Save("pixmaprecolor.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4649,7 +4921,7 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_pixmapresize() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../Rez/spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			foreach (IndirectObject io in doc.ObjectSoup) {
 				if (io is PixMap) {
 					var pm = (PixMap)io;
@@ -4657,7 +4929,7 @@ namespace ExampleTests {
 					pm.Resize(pm.Width / 4, pm.Height / 4);
 				}
 			}
-			doc.Save(Server.MapPath("pixmapresize.pdf"));
+			doc.Save("pixmapresize.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4673,13 +4945,13 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.Rect.Pin = XRect.Corner.TopLeft;
 			doc.Rect.Magnify(0.5, 0.5);
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			doc.AddImageFile(path, 1);
 			doc.Rect.Move(doc.Rect.Width, -doc.Rect.Height);
 			int i = doc.AddImageFile(path, 1);
 			var im = (ImageLayer)doc.ObjectSoup[i];
 			im.PixMap.SetAlpha(128);
-			doc.Save(Server.MapPath("pixmapsetalpha.pdf"));
+			doc.Save("pixmapsetalpha.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4696,11 +4968,11 @@ namespace ExampleTests {
 			doc.Rect.Inset(20, 20);
 			doc.Color.String = "0 255 0";
 			doc.FillRect();
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			int i = doc.AddImageFile(path, 1);
 			var im = (ImageLayer)doc.ObjectSoup[i];
 			im.PixMap.SetChromakey("0 50 0 50 0 50");
-			doc.Save(Server.MapPath("pixmapsetchromakey.pdf"));
+			doc.Save("pixmapsetchromakey.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4716,13 +4988,13 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			doc.Rect.Pin = XRect.Corner.TopLeft;
 			doc.Rect.Magnify(0.5, 0.5);
-			string path = Server.MapPath("../mypics/mypic.jpg");
+			string path = "../mypics/mypic.jpg";
 			doc.AddImageFile(path, 1);
 			doc.Rect.Move(doc.Rect.Width, -doc.Rect.Height);
 			int i = doc.AddImageFile(path, 1);
 			var im = (ImageLayer)doc.ObjectSoup[i];
 			im.PixMap.ToGrayscale();
-			doc.Save(Server.MapPath("pixmaptograyscale.pdf"));
+			doc.Save("pixmaptograyscale.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4746,7 +5018,7 @@ namespace ExampleTests {
 			sig = (Signature)doc.Form.Fields["Signature"];
 			sig.TimestampServiceUrl = new Uri("http://timestamp.comodoca.com");
 			sig.AddLTV(new Oid(CryptoConfig.MapNameToOID("SHA256")));
-			doc.Save(Server.MapPath("SignedLTV.pdf"));
+			doc.Save("SignedLTV.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4766,12 +5038,12 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_signaturesign() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../Rez/Authorization.pdf"));
+			doc.Read("../Rez/Authorization.pdf");
 			Signature theSig = (Signature)doc.Form["Signature"];
 			theSig.Location = "Washington";
 			theSig.Reason = "Schedule Agreed";
-			theSig.Sign(Server.MapPath("../Rez/JohnSmith.pfx"), "1234");
-			doc.Save(Server.MapPath("Signed.pdf"));
+			theSig.Sign("../Rez/JohnSmith.pfx", "1234");
+			doc.Save("Signed.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4783,25 +5055,24 @@ namespace ExampleTests {
 			// Part: 1 of 2
 			// Validate using certificate files
 			using (var doc = new Doc()) {
-				doc.Read(Server.MapPath("../Rez/SignedDocument.pdf"));
-				var theCerts = Server.MapPath("../Rez/JohnSmith.cer").Split(new char[] { ';' });
+				doc.Read("../Rez/SignedDocument.pdf");
+				var theCerts = "../Rez/JohnSmith.cer".Split([ ';' ]);
 				var theSig = (Signature)doc.Form["Signature"];
 				if ((theSig.Validate(theCerts)) && (!theSig.IsModified))
 					doc.AddText($"Signature valid at {DateTime.Now}");
-				doc.Save(Server.MapPath("SignedAndValidated.pdf"));
+				doc.Save("SignedAndValidated1.pdf");
 			}
 			// End Part:
 			// Part: 2 of 2
 			// Validate using the Windows Certificate Store
 			using (var doc = new Doc()) {
-				doc.Read(Server.MapPath("../Rez/SignedDocument.pdf"));
-				var theStore = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
+				doc.Read("../Rez/SignedDocument.pdf");
+				using var theStore = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
 				theStore.Open(OpenFlags.ReadOnly);
 				var theSig = (Signature)doc.Form["Signature"];
 				if ((theSig.Validate(theStore.Certificates)) && (!theSig.IsModified))
 					doc.AddText($"Signature valid at {DateTime.Now}");
-				theStore.Close();
-				doc.Save(Server.MapPath("SignedAndValidated.pdf"));
+				doc.Save("SignedAndValidated2.pdf");
 			}
 			// End Part:
 		}
@@ -4823,7 +5094,7 @@ namespace ExampleTests {
 		public static void Ex6_abcpdf_objects_signaturecompliancepades() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("mypics/BlankSignature.pdf"));
+			doc.Read("../mypics/BlankSignature.pdf");
 			var sig = (Signature)doc.Form.Fields["Signature1"];
 			sig.Reason = "Final Version";
 			sig.Location = "New York";
@@ -4836,7 +5107,7 @@ namespace ExampleTests {
 			foreach (char c in "password".ToCharArray())
 				pwd.AppendChar(c);
 			sig.Sign(cert, pwd, new Oid(CryptoConfig.MapNameToOID("SHA256")));
-			doc.Save(Server.MapPath("SignedDoc.pdf"));
+			doc.Save("SignedDoc.pdf");
 			// End Part:
 		}
 		// File End:
@@ -4852,19 +5123,19 @@ namespace ExampleTests {
 			if (cert == null)
 				return; // no certificate found
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("mypics/BlankSignature.pdf"));
+			doc.Read("../mypics/BlankSignature.pdf");
 			var sig = (Signature)doc.Form.Fields["Signature1"];
 			sig.CustomSigner = ExternalSigner;
 			sig.Reason = "Test External Signing";
 			// Just use public certificate from file - i.e. do not obtain from registry
-			var gs = new X509Certificate2(Server.MapPath("GlobalSign.cer"));
+			var gs = new X509Certificate2("GlobalSign.cer");
 			sig.Sign(gs, true, new Oid(CryptoConfig.MapNameToOID("SHA512")), X509IncludeOption.EndCertOnly);
 			cert = FindCertificate();
 			// here we commit and validate to ensure the data is correct
 			sig = (Signature)doc.Form.Fields["Signature1"]; // signature must be re-retrieved after a Commit/Save
 			if (!sig.Validate())
 				throw new Exception("Signing failed!");
-			doc.Save(Server.MapPath("SignedDoc.pdf"));
+			doc.Save("SignedDoc.pdf");
 			// End Part:
 			// Part: 2 of 2
 			byte[] ExternalSigner(byte[] data) {
@@ -4881,18 +5152,13 @@ namespace ExampleTests {
 			X509Certificate2 FindCertificate() {
 				string serial = "10 20 30 10 40 10 40 50 60 10 20 30"; // needs value
 				X509Certificate2 cert = null;
-				var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-				try {
-					store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly | OpenFlags.MaxAllowed);
-					var certs = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false);
-					if (certs.Count == 1) {
-						cert = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false)[0];
-						if (cert.PrivateKey is RSACryptoServiceProvider == false)
-							cert = null;
-					}
-				}
-				finally {
-					store.Close();
+				using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+				store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly | OpenFlags.MaxAllowed);
+				var certs = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false);
+				if (certs.Count == 1) {
+					cert = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false)[0];
+					if (cert.PrivateKey is RSACryptoServiceProvider == false)
+						cert = null;
 				}
 				return cert;
 			}
@@ -4911,19 +5177,19 @@ namespace ExampleTests {
 			if (cert == null)
 				return; // no certificate found
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("mypics/BlankSignature.pdf"));
+			doc.Read("../mypics/BlankSignature.pdf");
 			var sig = (Signature)doc.Form.Fields["Signature1"];
 			sig.CustomSigner2 = ExternalSigner;
 			sig.Reason = "Test External Signing";
 			// Just use public certificate from file - i.e. do not obtain from registry
-			var gs = new X509Certificate2(Server.MapPath("GlobalSign.cer"));
+			var gs = new X509Certificate2("GlobalSign.cer");
 			sig.Sign(gs, true, new Oid(CryptoConfig.MapNameToOID("SHA512")), X509IncludeOption.EndCertOnly);
 			// here we commit and validate to ensure the data is correct
 			sig.Commit();
 			sig = (Signature)doc.Form.Fields["Signature1"]; // signature must be re-retrieved after a Commit/Save
 			if (!sig.Validate())
 				throw new Exception("Signing failed!");
-			doc.Save(Server.MapPath("SignedDoc.pdf"));
+			doc.Save("SignedDoc.pdf");
 			// End Part:
 			// Part: 2 of 2
 			byte[] ExternalSigner(byte[] data, Signature.State state) {
@@ -4940,18 +5206,13 @@ namespace ExampleTests {
 			X509Certificate2 FindCertificate() {
 				string serial = "10 20 30 10 40 10 40 50 60 10 20 30"; // needs value
 				X509Certificate2 cert = null;
-				var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-				try {
-					store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly | OpenFlags.MaxAllowed);
-					var certs = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false);
-					if (certs.Count == 1) {
-						cert = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false)[0];
-						if (cert.PrivateKey is RSACryptoServiceProvider == false)
-							cert = null;
-					}
-				}
-				finally {
-					store.Close();
+				using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+				store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly | OpenFlags.MaxAllowed);
+				var certs = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false);
+				if (certs.Count == 1) {
+					cert = store.Certificates.Find(X509FindType.FindBySerialNumber, serial, false)[0];
+					if (cert.PrivateKey is RSACryptoServiceProvider == false)
+						cert = null;
 				}
 				return cert;
 			}
@@ -4969,12 +5230,12 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			var sb = new StringBuilder();
 			using (var doc = new Doc()) {
-				doc.Read(Server.MapPath("spaceshuttle.pdf"));
+				doc.Read("../Rez/spaceshuttle.pdf");
 				var page = doc.ObjectSoup[doc.Page] as Page;
 				var array = ArrayAtom.FromContentStream(page.GetContentData());
 				int indent = 0;
-				var indentPlus = new HashSet<string>(new string[] { "q", "BT" });
-				var indentMinus = new HashSet<string>(new string[] { "Q", "ET" });
+				var indentPlus = new HashSet<string>([ "q", "BT" ]);
+				var indentMinus = new HashSet<string>(["Q", "ET" ]);
 				var items = OpAtom.Find(array);
 				int index = 0;
 				foreach (var pair in items) {
@@ -5021,7 +5282,7 @@ namespace ExampleTests {
 				doc.Font = doc.AddFont("Courier");
 				doc.Rect.Inset(20, 20);
 				doc.AddText(sb.ToString());
-				doc.Save(Server.MapPath("PageContents.pdf"));
+				doc.Save("PageContents.pdf");
 			}
 			// End Part:
 		}
@@ -5040,7 +5301,7 @@ namespace ExampleTests {
 		public static void Ex7_abcpdf_atoms_opatomfind() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			doc.RemapPages(new int[] { 1, 1 });
 			doc.PageNumber = 2;
 			var page = doc.ObjectSoup[doc.Page] as Page;
@@ -5055,7 +5316,7 @@ namespace ExampleTests {
 			}
 			var array = ArrayAtom.FromContentStream(st.ToArray());
 			if (true) {
-				var items = OpAtom.Find(array, new string[] { "k" });
+				var items = OpAtom.Find(array, [ "k" ]);
 				foreach (var pair in items) { // make red
 					var args = OpAtom.GetParameters(array, pair.Item2);
 					if (args != null) {
@@ -5067,7 +5328,7 @@ namespace ExampleTests {
 				}
 			}
 			if (true) {
-				var items = OpAtom.Find(array, new string[] { "rg" });
+				var items = OpAtom.Find(array, [ "rg" ]);
 				foreach (var pair in items) { // make green
 					var args = OpAtom.GetParameters(array, pair.Item2);
 					if (args != null) {
@@ -5082,7 +5343,7 @@ namespace ExampleTests {
 			so.SetData(arrayData, 1, arrayData.Length - 2);
 			doc.SetInfo(page.ID, "/Contents:Del", "");
 			page.AddLayer(so);
-			doc.Save(Server.MapPath("ReplaceColors.pdf"));
+			doc.Save("ReplaceColors.pdf");
 			// End Part:
 		}
 		// File End:
@@ -5107,9 +5368,9 @@ namespace ExampleTests {
 					if (e.Info.SourceType == ProcessingSourceType.MultiFrameImage && e.Info.FrameNumber.HasValue)
 						e.Info.FrameNumber = 1 + (long)(e.Info.FrameRate.Value * 3.5);
 				};
-				operation.Import(Server.MapPath("ABCpdf.swf"));
+				operation.Import("../Rez/ABCpdf.swf");
 			}
-			doc.Save(Server.MapPath("swf.pdf"));
+			doc.Save("swf.pdf");
 			// End Part:
 		}
 		// File End:
@@ -5132,9 +5393,9 @@ namespace ExampleTests {
 		public static void Ex8_abcpdf_operations_3_recoloroperationrecolor() {
 			// Part: 1 of 2
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			MyOp.Recolor(doc, (Page)doc.ObjectSoup[doc.Page]);
-			doc.Save(Server.MapPath("RecolorOperation.pdf"));
+			doc.Save("RecolorOperation.pdf");
 			// End Part:
 		}
 		// Part: 2 of 2
@@ -5191,16 +5452,16 @@ namespace ExampleTests {
 		public static void Ex8_abcpdf_operations_3_recoloroperationicccmyk() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/SpaceShuttlePage6.pdf"));
+			doc.Read("../mypics/SpaceShuttlePage6.pdf");
 			var cs = new ColorSpace(doc.ObjectSoup, ColorSpaceType.Lab);
 			using (var op = new RecolorOperation()) {
 				op.DestinationColorSpace = cs;
-				op.IccCmyk = Server.MapPath("../Rez/EuroscaleCoated.icc");
+				op.IccCmyk = "../Rez/EuroscaleCoated.icc";
 				op.Type0SampleCount = 96;
 				op.RenderingIntent = RenderingIntent.Perceptual;
 				op.Recolor((Page)doc.ObjectSoup[doc.Page]);
 			}
-			doc.Save(Server.MapPath("RecolorToLab.pdf"));
+			doc.Save("RecolorToLab.pdf");
 			// End Part:
 		}
 		// File End:
@@ -5216,8 +5477,8 @@ namespace ExampleTests {
 			// Part: 1 of 2
 			using var doc = new Doc();
 			var importOp = new MyImportOperation(doc);
-			importOp.Import(Server.MapPath("mypics/AdvancedGraphicsExamples.xps"));
-			doc.Save(Server.MapPath("xps.pdf"));
+			importOp.Import("../mypics/AdvancedGraphicsExamples.xps");
+			doc.Save("xps.pdf");
 			// End Part:
 		}
 		// Part: 2 of 2
@@ -5379,10 +5640,10 @@ namespace ExampleTests {
 					if (pixmap != null)
 						pixmap.Compress();
 				};
-				operation.Import(Server.MapPath("ABCpdf.swf"));
+				operation.Import("../Rez/ABCpdf.swf");
 			}
-			doc1.Save(Server.MapPath("swf1.pdf"));
-			doc2.Save(Server.MapPath("swf2.pdf"));
+			doc1.Save("swf1.pdf");
+			doc2.Save("swf2.pdf");
 			// End Part:
 		}
 		// File End:
@@ -5402,7 +5663,7 @@ namespace ExampleTests {
 		public static void Ex8_abcpdf_operations_6_renderoperationsave() {
 			// Part: 1 of 2
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			string[] xts = { ".jpg", ".tif" };
 			int[] dpis = { 150, 300 };
 			var threads = new Thread[10];
@@ -5412,7 +5673,7 @@ namespace ExampleTests {
 				while (count < threads.Length && pageNum <= pageCount) {
 					doc.Rendering.DotsPerInch = dpis[(pageNum - 1) % 2];
 					doc.PageNumber = pageNum;
-					string path = Server.MapPath($"ABCpdf{pageNum}{xts[(pageNum - 1) % 2]}");
+					string path = $"ABCpdf{pageNum}{xts[(pageNum - 1) % 2]}";
 			
 			
 					threads[count] = new Thread(new RenderingWorker(doc, path).DoWork);
@@ -5452,8 +5713,8 @@ namespace ExampleTests {
 		public static void Ex8_abcpdf_operations_7_pdfconformityoperationsave() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("mypics/Acrobat.pdf"));
-			string path = Server.MapPath("pdfa.pdf");
+			doc.Read("../mypics/Acrobat.pdf");
+			string path = "pdfa_save.pdf";
 			using (var theOperation = new PdfConformityOperation()) {
 				theOperation.Conformance = PdfConformance.PdfA1b;
 				theOperation.Save(doc, path);
@@ -5475,7 +5736,7 @@ namespace ExampleTests {
 		// File Start: True .\8-abcpdf.operations\7-pdfvalidationoperation\1-methods\read.htm
 		public static void Ex8_abcpdf_operations_7_pdfvalidationoperationread() {
 			// Part: 1 of 1
-			string path = Server.MapPath("pdfa.pdf");
+			string path = "../Rez/pdfa.pdf";
 			using (var op = new PdfValidationOperation()) {
 				op.Conformance = PdfConformance.PdfA1b;
 				using var doc = op.Read(path, null);
@@ -5505,8 +5766,8 @@ namespace ExampleTests {
 		// File Start: True .\8-abcpdf.operations\8-textoperation\1-methods\group.htm
 		public static void Ex8_abcpdf_operations_8_textoperationgroup() {
 			// Part: 1 of 1
-			string src = Server.MapPath("mypics/Acrobat.pdf");
-			string dst = Server.MapPath("HighlightedText.pdf");
+			string src = "../mypics/Acrobat.pdf";
+			string dst = "HighlightedText.pdf";
 			string searchString = "Acrobat";
 			using var doc = new Doc();
 			doc.Read(src);
@@ -5540,8 +5801,8 @@ namespace ExampleTests {
 		// File Start: True .\8-abcpdf.operations\9-imageoperation\1-methods\getimageproperties.htm
 		public static void Ex8_abcpdf_operations_9_imageoperationgetimageproperties() {
 			// Part: 1 of 1
-			string src = Server.MapPath("mypics/Acrobat.pdf");
-			string dst = Server.MapPath("HighlightedImages.pdf");
+			string src = "../mypics/Acrobat.pdf";
+			string dst = "HighlightedImages.pdf";
 			using var doc = new Doc();
 			doc.Read(src);
 			doc.Color.SetRgb(255, 0, 0);
@@ -5573,9 +5834,9 @@ namespace ExampleTests {
 			op.ColorSpace = XRendering.ColorSpaceType.Rgb;
 			
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			op.Flatten(doc);
-			doc.Save(Server.MapPath("Flattened.pdf"));
+			doc.Save("Flattened.pdf");
 			// End Part:
 		}
 		// File End:
@@ -5588,10 +5849,10 @@ namespace ExampleTests {
 		public static void Ex8_abcpdf_operations_B_reducesizeoperationcompact() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("../mypics/sample.pdf"));
+			doc.Read("../mypics/sample.pdf");
 			using (var op = new ReduceSizeOperation(doc))
 				op.Compact(true);
-			doc.Save(Server.MapPath("ReduceSizeOperation.pdf"));
+			doc.Save("ReduceSizeOperation.pdf");
 			// End Part:
 		}
 		// File End:
@@ -5620,21 +5881,79 @@ namespace ExampleTests {
 		public static void Ex8_abcpdf_operations_C_accessibilityoperation1_accessibilityoperation() {
 			// Part: 1 of 1
 			using var doc = new Doc();
-			doc.Read(Server.MapPath("spaceshuttle.pdf"));
+			doc.Read("../Rez/spaceshuttle.pdf");
 			var pages = doc.ObjectSoup.Catalog.Pages.GetPageArrayAll();
 			foreach (var page in pages)
 				page.StampFormXObjects(true); // see notes on NVDA above
 			var op = new AccessibilityOperation(doc);
 			op.PageContents.AddPages();
 			op.MakeAccessible();
-			doc.Save(Server.MapPath("accessible.pdf"));
+			doc.Save("accessible.pdf");
+			// End Part:
+		}
+		// File End:
+
+		// Example code for Tag Function of AccessibilityOperationAI Class for ABCpdf .NET
+		// 
+		// This example shows a simple document tagging operation.
+		//
+		// File Start: True .\8-abcpdf.operations\C-accessibilityoperationai\1-methods\01-tag.htm
+		public static void Ex8_abcpdf_operations_C_accessibilityoperationai01_tag() {
+			// Part: 1 of 1
+			var options = new PythonOptions();
+			options.Initialize(PythonEnvironment.Current, null);
+			using var rt = PythonEnvironment.Current.GetRuntime();
+			using var scope = rt.CreateScope();
+			rt.StdOutWriter = Console.Out;
+			rt.StdErrWriter = Console.Error;
+			rt.AutoInitializeRuntime(scope);
+			var p = Environment.OSVersion.Platform;
+			bool isWindows = p == PlatformID.Win32NT || p == PlatformID.Win32S || p == PlatformID.Win32Windows;
+			if (!isWindows)
+				scope.Exec("import os\nos.environ['NO_COLOR'] = '1'\n");
+			var op = new AccessibilityOperationAI();
+			using var doc = op.Tag(scope, "../Rez/spacex_nasa_dragon.pdf");
+			doc.Save("accessibility_ai.pdf");
+			// End Part:
+		}
+		// File End:
+
+		// Example code for ConversionOptions Property of AccessibilityOperationAI Class for
+		// ABCpdf .NET
+		// 
+		// Older Nvidia graphics cards may cause Python on Linux to crash. To use CPU instead
+		// of GPU and also to disable ANSI color in stdout output on Linux, you can use code
+		// of this form.
+		//
+		// File Start: True .\8-abcpdf.operations\C-accessibilityoperationai\2-properties\01-conversionoptions.htm
+		public static void Ex8_abcpdf_operations_C_accessibilityoperationai01_conversionoptions() {
+			// Part: 1 of 1
+			string venvPath = null;
+			var options = new PythonOptions { SetNoSiteFlag = !string.IsNullOrEmpty(venvPath) };
+			options.Initialize(PythonEnvironment.Current, null);
+			using var rt = PythonEnvironment.Current.GetRuntime();
+			using var scope = rt.CreateScope();
+			rt.StdOutWriter = Console.Out;
+			rt.StdErrWriter = Console.Error;
+			rt.AutoInitializeRuntime(scope);
+			var p = Environment.OSVersion.Platform;
+			bool isWindows = p == PlatformID.Win32NT || p == PlatformID.Win32S || p == PlatformID.Win32Windows;
+			scope.Exec((isWindows ? "" : "import os\nos.environ['NO_COLOR'] = '1'\n") +
+				"from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions\n" +
+				"from docling.datamodel.base_models import InputFormat\n" +
+				"from docling.datamodel.pipeline_options import ThreadedPdfPipelineOptions\n" +
+				"from docling.document_converter import PdfFormatOption\n");
+			var op = new AccessibilityOperationAI();
+			op.ConversionOptions = "{InputFormat.PDF: PdfFormatOption(pipeline_options=ThreadedPdfPipelineOptions(do_ocr=False, accelerator_options=AcceleratorOptions(device=AcceleratorDevice.CPU)))}";
+			using var doc = op.Tag(scope, "../Rez/spacex_nasa_dragon.pdf");
+			doc.Save("accessibility_ai_cpu.pdf");
 			// End Part:
 		}
 		// File End:
 
 		// Example code for Vectorize Method of VectorizeTextOperation Class for ABCpdf .NET
 		// 
-		// Here we <span lang="en-us">vectorize all the text in </span>the document.
+		// Here we vectorize all the text in the document.
 		//
 		// File Start: True .\8-abcpdf.operations\L-vectorizetextoperation\1-methods\vectorize.htm
 		public static void Ex8_abcpdf_operations_L_vectorizetextoperationvectorize() {
@@ -5642,9 +5961,9 @@ namespace ExampleTests {
 			static void VectorizeDocText1(string inDocName) {
 				var op = new VectorizeTextOperation();
 				using var doc = new Doc();
-				doc.Read(Server.MapPath(inDocName));
+				doc.Read(inDocName);
 				op.Vectorize(doc);
-				doc.Save(Server.MapPath("VectorizedSample.pdf"));
+				doc.Save("VectorizedSample.pdf");
 			}
 			// End Part:
 			// Part: 2 of 3
@@ -5656,11 +5975,11 @@ namespace ExampleTests {
 			static void VectorizeDocText2(string inDocName) {
 				var op = new VectorizeTextOperation();
 				Doc doc = new Doc();
-				doc.Read(Server.MapPath(inDocName));
+				doc.Read(inDocName);
 				// Use the 'Vectorizing' method to decide which fonts to vectorize
 				op.ProcessingObject += new ProcessingObjectEventHandler(Vectorizing2);
 				op.Vectorize(doc);
-				doc.Save(Server.MapPath("VectorizedSample.pdf"));
+				doc.Save("VectorizedSample.pdf");
 			}
 			// End Part:
 			// Part: 3 of 3
@@ -5672,11 +5991,11 @@ namespace ExampleTests {
 			static void VectorizeDocText3(string inDocName) {
 				var op = new VectorizeTextOperation();
 				Doc doc = new Doc();
-				doc.Read(Server.MapPath(inDocName));
+				doc.Read(inDocName);
 				// Use the 'Vectorizing' method to decide which fonts to vectorize
 				op.ProcessingObject += new ProcessingObjectEventHandler(Vectorizing3);
 				op.Vectorize(doc);
-				doc.Save(Server.MapPath("VectorizedSample.pdf"));
+				doc.Save("VectorizedSample.pdf");
 			}
 			// End Part:
 		}
@@ -5696,8 +6015,8 @@ namespace ExampleTests {
 			// Part: 1 of 1
 			#if !NETFRAMEWORK // ignore
 			return; // ignore
-			string theSrc = Server.MapPath("mypics/multipage.tif");
-			string theDst = Server.MapPath("CloudOCR.pdf");
+			string theSrc = "../mypics/multipage.tif";
+			string theDst = "CloudOCR.pdf";
 			using (Doc doc = new Doc()) {
 				doc.Read(theSrc);
 			
@@ -5730,7 +6049,7 @@ namespace ExampleTests {
 				string template = "<html><body><div style=\"width:100%;font-size:14pt;text-align:center;\">*</div></body></html>";
 				op.HeaderHtml = template.Replace("*", "Commentarii de Bello Gallico");
 				op.FooterHtml = template.Replace("*", "<span class=pageNumber></span> of <span class=totalPages></span>");
-				op.ReadUrl(GetUrl("commentarii.htm"));
+				op.ReadUrl(GetUri("../Rez/commentarii.htm"));
 				var tagIDs = op.Doc.HtmlOptions.GetTagIDs(op.Doc.Page);
 				var tagRects = op.Doc.HtmlOptions.GetTagRects(op.Doc.Page);
 				for (int i = 0; i < tagIDs.Length; ++i) {
@@ -5739,8 +6058,228 @@ namespace ExampleTests {
 					op.Doc.FontSize = (int)(0.9 * op.Doc.Rect.Height);
 					op.Doc.AddText(tagIDs[i]);
 				}
-				op.Doc.Save(Server.MapPath("webpageop.pdf"));
+				op.Doc.Save("webpageop.pdf");
 			}
+			// End Part:
+		}
+		// File End:
+
+		// Example code for CustomFont Function of CustomFont Class for ABCpdf .NET
+		// 
+		// This example shows how to create a font Doc from a set of SVG files for use as the
+		// basis of a custom font. For an example showing how to use the emojifont.pdf document
+		// see the Embed method.
+		//
+		// File Start: True .\8-abcpdf.operations\R-customfont\1-methods\01-customfont.htm
+		public static void Ex8_abcpdf_operations_R_customfont01_customfont() {
+			// Part: 1 of 2
+			using var doc = new Doc();
+			string icons = "../Rez/icons";
+			CustomFontMaker.Append(doc, icons, "happy-svgrepo-com.svg", 0x1F600);
+			CustomFontMaker.Append(doc, icons, "smiling-svgrepo-com.svg", 0x1F601);
+			CustomFontMaker.Append(doc, icons, "in-love-svgrepo-com.svg", 0x1F60D);
+			CustomFontMaker.Append(doc, icons, "sad-svgrepo-com.svg", 0x1F614);
+			CustomFontMaker.Append(doc, icons, "angry-svgrepo-com.svg", 0x1F620);
+			CustomFontMaker.Append(doc, icons, "crying-svgrepo-com.svg", 0x1F62F);
+			CustomFontMaker.Baseline(doc, 0.2);
+			doc.Save("emojifont.pdf");
+			// End Part:
+		}
+		// Part: 2 of 2
+		class CustomFontMaker {
+			public static void Append(Doc doc, string dir, string file, int unicode) {
+				using var icon = new Doc();
+				icon.Read(Path.Combine(dir, file));
+				doc.Append(icon);
+				doc.PageNumber = doc.PageCount;
+				doc.AddBookmark($"0x{unicode:X}", false);
+			}
+			public static void Baseline(Doc doc, double baseline) {
+				var pages = doc.ObjectSoup.Catalog.Pages.GetPageArrayAll();
+				var bbox = new XRect();
+				foreach (var page in pages)
+					bbox.Union(page.MediaBox);
+				var scale = new XTransform(1, 0, 0, 1, 0, -bbox.Top * baseline);
+				foreach (var page in pages) {
+					doc.Page = page.ID;
+					var layers = page.GetLayers();
+					if (layers.Length > 0) {
+						// scale contents
+						var contents = (ArrayAtom)page.Resolve(Atom.GetItem(page.Atom, "Contents"));
+						var restore = new StreamObject(doc.ObjectSoup, Encoding.ASCII.GetBytes($" Q"));
+						contents.Insert(layers.Length, new RefAtom(restore));
+						var save = new StreamObject(doc.ObjectSoup, Encoding.ASCII.GetBytes($"q {scale.String} cm "));
+						contents.Insert(0, new RefAtom(save));
+						// update page boundaries
+						page.MediaBox.Union(XRect.FromPoints(scale.TransformPoints(page.MediaBox.GetCorners())));
+						if (page.CropBox != null)
+							page.CropBox.Union(XRect.FromPoints(scale.TransformPoints(page.CropBox.GetCorners())));
+						if (page.ArtBox != null)
+							page.ArtBox.Union(XRect.FromPoints(scale.TransformPoints(page.ArtBox.GetCorners())));
+						if (page.BleedBox != null)
+							page.BleedBox.Union(XRect.FromPoints(scale.TransformPoints(page.BleedBox.GetCorners())));
+					}
+				}
+			}
+		}
+		// End Part:
+		// File End:
+
+		// Example code for Embed Function of CustomFont Class for ABCpdf .NET
+		// 
+		// This example shows how you might embed and use a custom font. For an example showing
+		// how to create the emojifont.pdf document see the CustomFont constructor.
+		//
+		// File Start: True .\8-abcpdf.operations\R-customfont\1-methods\02-embed.htm
+		public static void Ex8_abcpdf_operations_R_customfont02_embed() {
+			// Part: 1 of 1
+			using var icons = new Doc();
+			icons.Read("../Rez/emojifont.pdf");
+			var emojis = new CustomFont(icons, 'a');
+			using var doc = new Doc();
+			doc.Page = doc.AddPage();
+			doc.FontSize = 42;
+			doc.Rect.Inset(72, 72);
+			int id = emojis.Embed(doc, true, 0.1);
+			doc.AddTextStyled($"Hello World: <stylerun pid={id}>abcdef</stylerun>...");
+			doc.FrameRect();
+			doc.Save("emojis.pdf");
+			// End Part:
+		}
+		// File End:
+
+		// Example code for Version Property of PythonEngine Struct for ABCpdf .NET
+		// 
+		// The following code reports the engine version.
+		//
+		// File Start: True .\9-abcpdf.python\03-pythonengine\2-properties\01-version.htm
+		public static void Ex9_abcpdf_python_03_pythonengine01_version() {
+			// Part: 1 of 1
+			var env = PythonEnvironment.Current;
+			var options = new PythonOptions();
+			options.Initialize(env, null);
+			var engine = new PythonEngine(env);
+			Console.WriteLine(engine.Version);
+			// End Part:
+		}
+		// File End:
+
+		// Example code for AutoInitializeRuntime Function of PythonRuntime Class for ABCpdf
+		// .NET
+		// 
+		// To use a virtual environment, you need to initialize the Python engine with PythonOptions.
+		// SetNoSiteFlag true and to provide the path to the directory of the virtual environment.
+		// This example shows how you might do this.
+		//
+		// File Start: True .\9-abcpdf.python\04-pythonruntime\1-methods\02-autoinitializeruntime.htm
+		public static void Ex9_abcpdf_python_04_pythonruntime02_autoinitializeruntime() {
+			// Part: 1 of 1
+			string venvPath = @"C:\MyVenv";
+			var env = PythonEnvironment.Current;
+			var options = new PythonOptions { SetNoSiteFlag = !string.IsNullOrEmpty(venvPath) };
+			options.Initialize(env, null);
+			using var rt = env.GetRuntime();
+			using var scope = rt.CreateScope();
+			rt.StdOutWriter = Console.Out;
+			rt.StdErrWriter = Console.Error;
+			rt.AutoInitializeRuntime(scope, venvPath);
+			// ... do work
+			// End Part:
+		}
+		// File End:
+
+		// Example code for SetAfterEval Function of PythonScope Class for ABCpdf .NET
+		// 
+		// You can re-use a complex object using code of the following form.
+		//
+		// File Start: True .\9-abcpdf.python\06-pythonscope\1-methods\10-setaftereval.htm
+		public static void Ex9_abcpdf_python_06_pythonscope10_setaftereval() {
+			// Part: 1 of 1
+			var options = new PythonOptions();
+			options.Initialize(PythonEnvironment.Current, null);
+			using var rt = PythonEnvironment.Current.GetRuntime();
+			using var scope = rt.CreateScope();
+			rt.StdOutWriter = Console.Out;
+			rt.StdErrWriter = Console.Error;
+			rt.AutoInitializeRuntime(scope);
+			scope.Exec(
+				"from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions\n" +
+				"from docling.datamodel.base_models import InputFormat\n" +
+				"from docling.datamodel.pipeline_options import ThreadedPdfPipelineOptions\n" +
+				"from docling.document_converter import PdfFormatOption\n"
+			);
+			scope.SetAfterEval("myFormatOptions", "{InputFormat.PDF: PdfFormatOption(pipeline_options=ThreadedPdfPipelineOptions(do_ocr=False, accelerator_options=AcceleratorOptions(device=AcceleratorDevice.CPU)))}");
+			var op = new AccessibilityOperationAI();
+			op.ConversionOptions = "myFormatOptions";
+			// ... do work
+			// End Part:
+		}
+		// File End:
+
+		// Example code for EvalString Function of PythonScope Class for ABCpdf .NET
+		// 
+		// For example to get the version of Docling you might use code of the following form.
+		//
+		// File Start: True .\9-abcpdf.python\06-pythonscope\1-methods\11-evalstring.htm
+		public static void Ex9_abcpdf_python_06_pythonscope11_evalstring() {
+			// Part: 1 of 1
+			var options = new PythonOptions();
+			options.Initialize(PythonEnvironment.Current, null);
+			using var rt = PythonEnvironment.Current.GetRuntime();
+			using var scope = rt.CreateScope();
+			rt.StdOutWriter = Console.Out;
+			rt.StdErrWriter = Console.Error;
+			rt.AutoInitializeRuntime(scope);
+			var result = scope.EvalString("__import__('importlib.metadata', fromlist=['metadata']).version('docling')\n");
+			Console.WriteLine(result);
+			// End Part:
+		}
+		// File End:
+
+		// Example code for Exec Function of PythonScope Class for ABCpdf .NET
+		// 
+		// To disable ANSI color in stdout output on Linux you might use code of the following
+		// form.
+		//
+		// File Start: True .\9-abcpdf.python\06-pythonscope\1-methods\18-exec.htm
+		public static void Ex9_abcpdf_python_06_pythonscope18_exec() {
+			// Part: 1 of 1
+			var options = new PythonOptions();
+			options.Initialize(PythonEnvironment.Current, null);
+			using var rt = PythonEnvironment.Current.GetRuntime();
+			using var scope = rt.CreateScope();
+			rt.StdOutWriter = Console.Out;
+			rt.StdErrWriter = Console.Error;
+			rt.AutoInitializeRuntime(scope);
+			scope.Exec("import os\nos.environ['NO_COLOR'] = '1'\n");
+			// ... do work
+			// End Part:
+		}
+		// File End:
+
+		// Example code for InitializeRuntime Function of PythonRuntimeOptions Class for ABCpdf
+		// .NET
+		// 
+		// To disable ANSI color in stdout output on Linux you might use code of the following
+		// form.
+		//
+		// File Start: True .\9-abcpdf.python\07-pythonruntimeoptions\1-methods\02-initializeruntime.htm
+		public static void Ex9_abcpdf_python_07_pythonruntimeoptions02_initializeruntime() {
+			// Part: 1 of 1
+			string venvPath = null;
+			var options = new PythonOptions { SetNoSiteFlag = !string.IsNullOrEmpty(venvPath) };
+			var env = PythonEnvironment.Current;
+			options.Initialize(env, null);
+			using var rt = PythonEnvironment.Current.GetRuntime();
+			using var scope = rt.CreateScope();
+			var rtOptions = new PythonRuntimeOptions() {
+			    VEnvPath = venvPath,
+			    StdOutCallback = Console.Out.Write,
+			    StdErrCallback = Console.Error.Write
+			};
+			rtOptions.InitializeRuntime(scope);
+			env.RuntimeIsInitialized = RuntimeInitializationState.UserInitialized;
+			// ... do work
 			// End Part:
 		}
 		// File End:
@@ -5750,6 +6289,7 @@ namespace ExampleTests {
 			var exc = new Dictionary<string, Action>();
 			exc["4_examples_02_textflow"] = Ex4_examples_02_textflow;
 			exc["4_examples_02_textflow2"] = Ex4_examples_02_textflow2;
+			exc["4_examples_02_texttagged"] = Ex4_examples_02_texttagged;
 			exc["4_examples_03_multistyled"] = Ex4_examples_03_multistyled;
 			exc["4_examples_04_image"] = Ex4_examples_04_image;
 			exc["4_examples_05_deletion"] = Ex4_examples_05_deletion;
@@ -5868,6 +6408,11 @@ namespace ExampleTests {
 			exc["5_abcpdf_xsaveoptionstemplate"] = Ex5_abcpdf_xsaveoptionstemplate;
 			exc["5_abcpdf_xsaveoptionswritepageseparator"] = Ex5_abcpdf_xsaveoptionswritepageseparator;
 			exc["5_abcpdf_xsavetemplatedatasetmeasureresolution"] = Ex5_abcpdf_xsavetemplatedatasetmeasureresolution;
+			exc["5_abcpdf_xtagging04_open"] = Ex5_abcpdf_xtagging04_open;
+			exc["5_abcpdf_xtagging05_close"] = Ex5_abcpdf_xtagging05_close;
+			exc["5_abcpdf_xtagging08_addfocus"] = Ex5_abcpdf_xtagging08_addfocus;
+			exc["5_abcpdf_xtagging_focusopaquetypes"] = Ex5_abcpdf_xtagging_focusopaquetypes;
+			exc["5_abcpdf_xtextstyleautotag"] = Ex5_abcpdf_xtextstyleautotag;
 			exc["5_abcpdf_xtextstylebold"] = Ex5_abcpdf_xtextstylebold;
 			exc["5_abcpdf_xtextstylecharspacing"] = Ex5_abcpdf_xtextstylecharspacing;
 			exc["5_abcpdf_xtextstylehpos"] = Ex5_abcpdf_xtextstylehpos;
@@ -5899,6 +6444,7 @@ namespace ExampleTests {
 			exc["6_abcpdf_objects_colorspacegamma"] = Ex6_abcpdf_objects_colorspacegamma;
 			exc["6_abcpdf_objects_colorspacewhitepoint"] = Ex6_abcpdf_objects_colorspacewhitepoint;
 			exc["6_abcpdf_objects_filespecificationfilespecification"] = Ex6_abcpdf_objects_filespecificationfilespecification;
+			exc["6_abcpdf_objects_fontobjectrunewidths"] = Ex6_abcpdf_objects_fontobjectrunewidths;
 			exc["6_abcpdf_objects_fontobjectwidths"] = Ex6_abcpdf_objects_fontobjectwidths;
 			exc["6_abcpdf_objects_pagegetbitmap"] = Ex6_abcpdf_objects_pagegetbitmap;
 			exc["6_abcpdf_objects_pagemakeformxobject"] = Ex6_abcpdf_objects_pagemakeformxobject;
@@ -5932,9 +6478,19 @@ namespace ExampleTests {
 			exc["8_abcpdf_operations_A_flattentransparencyflatten"] = Ex8_abcpdf_operations_A_flattentransparencyflatten;
 			exc["8_abcpdf_operations_B_reducesizeoperationcompact"] = Ex8_abcpdf_operations_B_reducesizeoperationcompact;
 			exc["8_abcpdf_operations_C_accessibilityoperation1_accessibilityoperation"] = Ex8_abcpdf_operations_C_accessibilityoperation1_accessibilityoperation;
+			exc["8_abcpdf_operations_C_accessibilityoperationai01_tag"] = Ex8_abcpdf_operations_C_accessibilityoperationai01_tag;
+			exc["8_abcpdf_operations_C_accessibilityoperationai01_conversionoptions"] = Ex8_abcpdf_operations_C_accessibilityoperationai01_conversionoptions;
 			exc["8_abcpdf_operations_L_vectorizetextoperationvectorize"] = Ex8_abcpdf_operations_L_vectorizetextoperationvectorize;
 			exc["8_abcpdf_operations_M_cloudvisionoperation04_startocr"] = Ex8_abcpdf_operations_M_cloudvisionoperation04_startocr;
 			exc["8_abcpdf_operations_Q_webpageoperation01_doc"] = Ex8_abcpdf_operations_Q_webpageoperation01_doc;
+			exc["8_abcpdf_operations_R_customfont01_customfont"] = Ex8_abcpdf_operations_R_customfont01_customfont;
+			exc["8_abcpdf_operations_R_customfont02_embed"] = Ex8_abcpdf_operations_R_customfont02_embed;
+			exc["9_abcpdf_python_03_pythonengine01_version"] = Ex9_abcpdf_python_03_pythonengine01_version;
+			exc["9_abcpdf_python_04_pythonruntime02_autoinitializeruntime"] = Ex9_abcpdf_python_04_pythonruntime02_autoinitializeruntime;
+			exc["9_abcpdf_python_06_pythonscope10_setaftereval"] = Ex9_abcpdf_python_06_pythonscope10_setaftereval;
+			exc["9_abcpdf_python_06_pythonscope11_evalstring"] = Ex9_abcpdf_python_06_pythonscope11_evalstring;
+			exc["9_abcpdf_python_06_pythonscope18_exec"] = Ex9_abcpdf_python_06_pythonscope18_exec;
+			exc["9_abcpdf_python_07_pythonruntimeoptions02_initializeruntime"] = Ex9_abcpdf_python_07_pythonruntimeoptions02_initializeruntime;
 			return exc;
 		}
 

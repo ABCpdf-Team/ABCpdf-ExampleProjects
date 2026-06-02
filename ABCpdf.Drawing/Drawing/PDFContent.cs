@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -19,17 +19,18 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Atoms;
-using WebSupergoo.ABCpdf13.Objects;
-using DocPage = WebSupergoo.ABCpdf13.Objects.Page;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Objects;
+using DocPage = WebSupergoo.ABCpdf14.Objects.Page;
 #if CONTENT_VALIDATION
 using System.Windows.Forms;
 #endif
 
 
-namespace WebSupergoo.ABCpdf13.Drawing {
+namespace WebSupergoo.ABCpdf14.Drawing {
 	#region PDFContent
 	/// <summary>
 	/// PDFContent class is a simple constructor of the pdf content.
@@ -479,8 +480,7 @@ namespace WebSupergoo.ABCpdf13.Drawing {
 				if(errorsToShow < mErrors.Count)
 					errors += "\n...";
 
-				MessageBox.Show(errors, "PDFContent",
-					MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+				Debug.Fail(errors);
 			}
 #endif
 		}

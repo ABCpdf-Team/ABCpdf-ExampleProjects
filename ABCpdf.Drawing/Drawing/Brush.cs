@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -13,9 +13,9 @@
 
 using System;
 
-namespace WebSupergoo.ABCpdf13.Drawing {
+namespace WebSupergoo.ABCpdf14.Drawing {
 	public interface Brush {
-		WebSupergoo.ABCpdf13.Drawing.Color Color {
+		WebSupergoo.ABCpdf14.Drawing.Color Color {
 			get;
 			set;
 		}

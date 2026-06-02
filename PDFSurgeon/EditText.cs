@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -20,6 +20,8 @@ using System.Text;
 using System.Diagnostics;
 using System.Windows.Forms;
 
+using WebSupergoo.ABCpdf14.Atoms;
+
 
 namespace WebSupergoo.PDFSurgeon {
 	public partial class EditText : Form {
@@ -31,9 +33,26 @@ namespace WebSupergoo.PDFSurgeon {
 
 		private void EditText_Load(object sender, EventArgs e) {
 			if (_editor.Stream != null && !_editor.Extractor.IsAscii) {
-				const string message = "This object appears to contain data rather than text.\r\n\r\nWould you like to ASCII 85 encode it for editing?";
-				if (MessageBox.Show(message, "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
-					_editor.Stream.CompressAscii85();
+				if (_editor.Stream.Compressed) {
+					const string message = "This object appears to contain compressed data rather than text.\r\n\r\nWould you like to decompress it prior to editing?";
+					var action = MessageBox.Show(message, "Warning", MessageBoxButtons.YesNoCancel);
+					if (action == DialogResult.Yes) {
+						if (!_editor.Stream.Decompress()) {
+							MessageBox.Show("Unable to decompress object.", "Warning", MessageBoxButtons.OK);
+							return;
+						}
+					}
+					else if (action == DialogResult.Cancel)
+						return;
+				}
+				else {
+					const string message = "This object appears to contain data rather than text.\r\n\r\nWould you like to ASCII 85 encode it for editing?";
+					var action = MessageBox.Show(message, "Warning", MessageBoxButtons.YesNoCancel);
+					if (action == DialogResult.Yes)
+						_editor.Stream.CompressAscii85();
+					else if (action == DialogResult.Cancel)
+						return;
+				}
 			}
 			Size size = Properties.Settings.Default.EditTextSize;
 			if (size.Width > 30 && size.Height > 30)
@@ -126,8 +145,7 @@ namespace WebSupergoo.PDFSurgeon {
 			double hi = (double)trackBar2.Value / trackBar2.Maximum;
 			StringBuilder sb = _editor.GetPartialContentStream(lo, hi);
 			if (sb != null) {
-				string s = sb.ToString();
-				textBox1.Text = "<< /Length " + s.Length + " >>\r\nstream\r\n" + s + "\r\nendstream\r\n";
+				textBox1.Text = UpdateFromContentStream(sb.ToString(), textBox1.Text);
 				UpdateSearch();
 			}
 		}
@@ -137,8 +155,7 @@ namespace WebSupergoo.PDFSurgeon {
 			double hi = (double)trackBar2.Value / trackBar2.Maximum;
 			StringBuilder sb = _editor.GetPartialContentStream(lo, hi);
 			if (sb != null) {
-				string s = sb.ToString();
-				textBox1.Text = "<< /Length " + s.Length + " >>\r\nstream\r\n" + s + "\r\nendstream\r\n";
+				textBox1.Text = UpdateFromContentStream(sb.ToString(), textBox1.Text);
 				UpdateSearch();
 			}
 		}
@@ -226,6 +243,13 @@ namespace WebSupergoo.PDFSurgeon {
 				label3.Text = "0/0";
 				numericUpDown1.Enabled = false;
 			}
+		}
+
+		private static string UpdateFromContentStream(string newContentStream, string originalText) {
+			string header = originalText.Substring(0, originalText.IndexOf("stream\r\n"));
+			var dict = (DictAtom)Atom.FromString(header);
+			dict["Length"] = new NumAtom(newContentStream.Length);
+			return dict.ToString() + "\r\nstream\r\n" + newContentStream + "\r\nendstream\r\n";
 		}
 	}
 }

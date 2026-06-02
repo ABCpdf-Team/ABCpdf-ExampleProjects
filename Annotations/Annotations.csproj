@@ -129,7 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ABCpdf">
-      <Version>13.*</Version>
+      <Version>14.*</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

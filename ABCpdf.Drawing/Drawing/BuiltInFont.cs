@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -16,7 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Globalization;
 
-namespace WebSupergoo.ABCpdf13.Drawing {
+namespace WebSupergoo.ABCpdf14.Drawing {
 
 	public class BuiltInFont: Font {
 		private FontStyle _style;
@@ -265,7 +265,7 @@ namespace WebSupergoo.ABCpdf13.Drawing {
 		public override string GetName(int language){ return _name; }
 		internal abstract string GetBuiltInName(FontStyle style);
 		internal Text.BuiltInFontMetrics GetFontMetrics(FontStyle style) {
-			string name = string.Format("WebSupergoo.ABCpdf13.Drawing.Core14_AFMs.{0}.afm", GetBuiltInName(style));
+			string name = string.Format("WebSupergoo.ABCpdf14.Drawing.Core14_AFMs.{0}.afm", GetBuiltInName(style));
 			Stream stream = GetType().Assembly.GetManifestResourceStream(name);
 			Debug.Assert(stream != null);
 			return new Text.BuiltInFontMetrics(stream);

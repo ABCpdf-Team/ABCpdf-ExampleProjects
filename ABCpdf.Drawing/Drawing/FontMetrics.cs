@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -14,7 +14,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace WebSupergoo.ABCpdf13.Drawing.Text
+namespace WebSupergoo.ABCpdf14.Drawing.Text
 {
 	#region FontMetrics
 	internal abstract class FontMetrics

@@ -1,5 +1,5 @@
-// ===========================================================================
-//	�2013-2024 WebSupergoo. All rights reserved.
+﻿// ===========================================================================
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -23,10 +23,10 @@ using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Objects;
-using WebSupergoo.ABCpdf13.Atoms;
-using WebSupergoo.ABCpdf13.Operations;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Objects;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Operations;
 
 namespace Redaction
 {
@@ -556,17 +556,14 @@ namespace Redaction
 					foreach (var fragment in fragments)
 						rect.Union(fragment.Rect);
 					var first = fragments[0];
-					bool ok = true;
-					foreach (var c in replace) {
-						if (!first.Font.CharToEncoding.ContainsKey(c)) {
-							ok = false;
-							break;
-						}
-					}
-					if (ok)
+					if (FontSupportsText(first.Font, replace))
 						doc.Font = first.Font.ID;
-					else
+					else {
 						doc.Font = doc.EmbedFont(first.Font.BaseFont, LanguageType.Unicode);
+						var font = (FontObject)doc.ObjectSoup[doc.Font];
+						if (FontSupportsText(first.Font, replace) == false)
+							throw new Exception("Text contains glyphs which do not exist in font.");
+					}
 					doc.TextStyle.Size = first.FontSize;
 					doc.ColorSpace = first.FontColorSpace != null ? first.FontColorSpace.ID : 0;
 					doc.Color.String = first.FontColor.String;
@@ -579,6 +576,14 @@ namespace Redaction
 				_src = dst;
 				UpdateDoc();
 			}
+		}
+
+		private static bool FontSupportsText(FontObject font, string replace) {
+			var chars = font.CharToEncoding;
+			foreach (var c in replace)
+				if (!chars.ContainsKey(c))
+					return false;
+			return true;
 		}
 	}
 }

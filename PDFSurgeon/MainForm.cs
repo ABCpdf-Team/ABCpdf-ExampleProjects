@@ -1,5 +1,5 @@
 ﻿// ===========================================================================
-//	©2013-2024 WebSupergoo. All rights reserved.
+//	©2013-2025 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -22,9 +22,9 @@ using SD = System.Drawing;
 using SD2 = System.Drawing.Drawing2D;
 
 using System.Drawing.Imaging;
-using WebSupergoo.ABCpdf13;
-using WebSupergoo.ABCpdf13.Atoms;
-using WebSupergoo.ABCpdf13.Objects;
+using WebSupergoo.ABCpdf14;
+using WebSupergoo.ABCpdf14.Atoms;
+using WebSupergoo.ABCpdf14.Objects;
 
 namespace WebSupergoo.PDFSurgeon
 {
@@ -1168,25 +1168,48 @@ namespace WebSupergoo.PDFSurgeon
 				File.Copy(_filePath, temp.Path);
 				bool linearized = File.ReadAllText(temp.Path).Contains("/Linearized 1");
 				string name = Path.GetFileNameWithoutExtension(_filePath);
+				List<long> eofs = null;
+				List<int> signedAreas = new List<int>();
 				using (Doc doc = new Doc()) {
 					doc.Read(temp.Path);
 					int n =  doc.ObjectSoup.Revisions;
+					if (eofs == null) {
+						eofs = new List<long>(doc.ObjectSoup.RevisionEOFs);
+						eofs.Reverse();
+					}
 					if (linearized)
 						n--;
 					for (int i = 0; i < n; i++) {
 						doc.Read(temp.Path);
 						XReadOptions ro = new XReadOptions { SkipRevisions = i };
 						doc.Read(temp.Path, ro);
+						int max = 0;
 						foreach (var o in doc.ObjectSoup) {
 							if (o == null)
 								continue;
 							var a = o.Atom; // touch the atom to ensure consistent formatting
+							var br = Atom.GetItem(a, "ByteRange") as ArrayAtom;
+							if (br != null && br.Count == 4 && Atom.GetItem(a, "Contents") != null)
+								max = Math.Max(max, Atom.GetInt(br[2]) + Atom.GetInt(br[3]));
 						}
+						signedAreas.Add(max);
 						doc.SaveOptions.Remap = false;
 						doc.SaveOptions.Linearize = false;
 						doc.SaveOptions.Incremental = false;
-						doc.Save(Path.Combine(folder, $"{name}-{n - i}of{n}.pdf"));
+						doc.Save(Path.Combine(folder, $"{name}-rewrite-{n - i}of{n}.pdf"));
 					}
+				}
+				var data = File.ReadAllBytes(temp.Path);
+				for (int i = 0; i < eofs.Count; i++) {
+					int diff = 0;
+					if (signedAreas[i] > 0) {
+						diff = signedAreas[i] - (int)eofs[i];
+						if (diff < 0 || diff > 10) // something odd
+							diff = "%%EOF\r\n".Length;
+					}
+					var path = Path.Combine(folder, $"{name}-original-{eofs.Count - i}of{eofs.Count}.pdf");
+					using (var stream = new FileStream(path, FileMode.Create))
+						stream.Write(data, 0, (int)(eofs[i] + diff));
 				}
 			}
 		}
