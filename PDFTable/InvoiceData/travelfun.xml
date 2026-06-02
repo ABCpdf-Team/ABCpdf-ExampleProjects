@@ -2,7 +2,7 @@
 <Invoice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="invoice.xsd">
 	<CompanyInfo Address=" 375 Old Avenue" Name="Travel Fun" State="AZ" Phone="1-468-136-6770" Zip="97110-2804" City=" Pheonix" logo="travellogo.jpg"/>
 	<Customer Address="136 West 8th St" Name="Outdoors Ltd." State="WA" Phone="1-866-571-5039" City="Sant Angeles" Zip="98362"/>
-	<Order Date="2004.12.03" FOB="324" OrderNo="44" Rep="45456" TaxRate="0.05" ShippingCharge="500">
+	<Order Date="2026.12.03" FOB="324" OrderNo="44" Rep="45456" TaxRate="0.05" ShippingCharge="500">
 		<Item Desc="Adventure Towel and Travel Kit" Qty="12" UnitPrice="19.23"/>
 		<Item Desc="Backpacks" Qty="36" UnitPrice="72.99"/>
 		<Item Desc="Daypacks" Qty="36" UnitPrice="37.99"/>
@@ -34,5 +34,5 @@
 		<Item Desc="T-Shirt - Short Sleeve (for Men)" Qty="12" UnitPrice="11.99"/>
 		<Item Desc="Water Bottles" Qty="36" UnitPrice="3.55"/>
 	</Order>
-	<PaymentDetails Payment="Credit Card" CC="4408 0412 3456 7890" Expires="03.07.2007" Name="John Smith"/>
+	<PaymentDetails Payment="Credit Card" CC="4408 0412 3456 7890" Expires="03.07.2027" Name="John Smith"/>
 </Invoice>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
     <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
@@ -24,8 +24,6 @@
     <Compile Include="..\..\ABCpdf.Drawing\Drawing\Brush.cs" Link="ABCpdf.Drawing\Brush.cs" />
     <Compile Include="..\..\ABCpdf.Drawing\Drawing\BuiltInFont.cs" Link="ABCpdf.Drawing\BuiltInFont.cs" />
     <Compile Include="..\..\ABCpdf.Drawing\Drawing\BuiltInFontMetrics.cs" Link="ABCpdf.Drawing\BuiltInFontMetrics.cs" />
-    <Compile Include="..\..\ABCpdf.Drawing\Drawing\Chart.cs" Link="ABCpdf.Drawing\Chart.cs" />
-    <Compile Include="..\..\ABCpdf.Drawing\Drawing\ChartColumn.cs" Link="ABCpdf.Drawing\ChartColumn.cs" />
     <Compile Include="..\..\ABCpdf.Drawing\Drawing\Color.cs" Link="ABCpdf.Drawing\Color.cs" />
     <Compile Include="..\..\ABCpdf.Drawing\Drawing\CustomPanel.cs" Link="ABCpdf.Drawing\CustomPanel.cs" />
     <Compile Include="..\..\ABCpdf.Drawing\Drawing\Font.cs" Link="ABCpdf.Drawing\Font.cs" />
@@ -49,13 +47,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\MustRead.html" Link="ABCpdf.Drawing\Core14_AFMs\MustRead.html" />
+    <PackageReference Include="ABCpdf" Version="14.0.2" />
+    <PackageReference Include="ABCpdf.ABCGecko" Version="14.0.2" />
+    <PackageReference Include="ABCpdf.ABCWebKit" Version="14.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="ABCpdf.Drawing\Core14_AFMs\" />
-    <Folder Include="AdvancedGraphics\" />
     <Folder Include="Annotations\" />
+    <Folder Include="AdvancedGraphics\" />
     <Folder Include="PDFTable\" />
   </ItemGroup>
 
@@ -74,10 +74,6 @@
     <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Times-Italic.afm" Link="ABCpdf.Drawing\Core14_AFMs\Times-Italic.afm" />
     <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\Times-Roman.afm" Link="ABCpdf.Drawing\Core14_AFMs\Times-Roman.afm" />
     <EmbeddedResource Include="..\..\ABCpdf.Drawing\Drawing\Core14_AFMs\ZapfDingbats.afm" Link="ABCpdf.Drawing\Core14_AFMs\ZapfDingbats.afm" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ABCpdf" Version="14.0.0" />
   </ItemGroup>
 
 </Project>

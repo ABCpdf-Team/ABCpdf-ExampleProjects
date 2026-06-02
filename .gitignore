@@ -1,3 +1,9 @@
 bin
 obj
 .vs
+*.suo
+*.user
+ExportOBJ/**
+**/Secret/**/*
+GlobalSign/Notes.rtf
+packages/**/*

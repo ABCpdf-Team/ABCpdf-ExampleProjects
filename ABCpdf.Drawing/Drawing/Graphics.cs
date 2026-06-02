@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2025 WebSupergoo. All rights reserved.
+//	©2013-2026 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -256,7 +256,7 @@ namespace WebSupergoo.ABCpdf14.Drawing {
 		public System.Drawing.Rectangle Rect {
 			get { return Content.Doc.Rect.Rectangle; }
 			set { Content.Doc.Rect.Rectangle = value; }
-		} 
+		}
 
 		/// <summary>Determines the current world space transform.</summary>
 		public Drawing2D.Matrix Transform {
@@ -1128,7 +1128,7 @@ namespace WebSupergoo.ABCpdf14.Drawing {
 			}
 			else {
 				string oldTransform = Content.Doc.Transform.String;
-				System.Drawing.Rectangle oldRect = Content.Doc.Rect.Rectangle;
+				string oldRect = Content.Doc.Rect.String;
 				Content.Doc.Transform.SetTransform(m.A, m.B, m.C, m.D, m.E, m.F);
 				Content.Doc.Rect.SetRect(0, 0, 1, 1);
 
@@ -1139,7 +1139,7 @@ namespace WebSupergoo.ABCpdf14.Drawing {
 				page.Detach(Content.Doc.ObjectSoup[imageID] as StreamObject);
 				Content.Contents.Append(" ").Append(stream).Append(" ");
 
-				Content.Doc.Rect.Rectangle = oldRect;
+				Content.Doc.Rect.String = oldRect;
 				Content.Doc.Transform.String = oldTransform;
 			}
 		}

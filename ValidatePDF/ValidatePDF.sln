@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidatePDF", "ValidatePDF.csproj", "{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Debug|x86.ActiveCfg = Debug|x86
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Debug|x86.Build.0 = Debug|x86
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Release|x86.ActiveCfg = Release|x86
+		{D219E7D5-81D6-47A5-87E9-97195B9EDFBA}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6D797473-1E64-4F77-BCCD-A05B88F663C9}
+	EndGlobalSection
+EndGlobal

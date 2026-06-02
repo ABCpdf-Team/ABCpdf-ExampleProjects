@@ -1,5 +1,5 @@
 ﻿// ===========================================================================
-//	©2013-2025 WebSupergoo. All rights reserved.
+//	©2013-2026 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -920,7 +920,7 @@ namespace Glue3DUtilities
 						{
 							// set up loading parameters
 							WebSupergoo.LoadSceneParams loadParams = new WebSupergoo.LoadSceneParams();
-							if (isPDF && selectedStream.Stream != null)
+							if (isPDF && selectedStream != null && selectedStream.Stream != null)
 							{
 								loadParams.flags = (UInt32)WebSupergoo.ELoadParamFlags.LoadParam_Input_RawData;
 								byte[] streamData = selectedStream.Stream;

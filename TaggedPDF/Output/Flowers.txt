@@ -1,37 +1,39 @@
-<Root ObjID="51">
-	<Document ObjID="53">
-		<H1 PageNumber="1" ObjID="54">
+<Root ObjID="47">
+	<Document ObjID="50">
+		<H1 PageNumber="1" ObjID="51">
 			<ActualText>Aster (flower)</ActualText>
 			<MCID ID="0" />
 		</H1>
-		<P PageNumber="1" ObjID="55">
+		<P PageNumber="1" ObjID="52">
 			<ActualText>The genus Aster includes some 600 species of widely distributed flowering plants in the family Asteraceae. Aster comes from Greek word for &quot;star&quot;, and refers to the shape of the flower head. Many of the species are popular garden plants because of their showy flower heads.</ActualText>
 			<MCID ID="1" />
 		</P>
-		<P PageNumber="1" ObjID="56">
+		<P PageNumber="1" ObjID="53">
 			<ActualText>Sample pictures of Asters</ActualText>
 			<MCID ID="2" />
 		</P>
-		<P PageNumber="1" ObjID="57">
-			<Image PageNumber="1" ObjID="58">
+		<P PageNumber="1" ObjID="54">
+			<Image PageNumber="1" ObjID="55">
+				<Alt>Aster flower</Alt>
 				<MCID ID="3" />
 			</Image>
 		</P>
-		<P PageNumber="1" ObjID="59">
-			<Image PageNumber="1" ObjID="60">
+		<P PageNumber="1" ObjID="56">
+			<Image PageNumber="1" ObjID="57">
+				<Alt>Aster flower</Alt>
 				<MCID ID="4" />
 			</Image>
 		</P>
-		<P PageNumber="2" ObjID="61">
+		<P PageNumber="2" ObjID="58">
 			<ActualText>The flowers of the Sea Aster (A. tripolium) are eaten by the larvae of the Wormwood Pug moth. The larvae of other Lepidoptera including Flame Shoulder and Hummingbird Hawk- moth sometimes eats the foliage of asters. The genus Aster is now generally restricted to the Old World species, with Aster amellus being the type species of the genus (and of the family Asteraceae). The New World species have now been reclassified in the genera Almutaster, Canadanthus, Doellingeria, Eucephalus, Eurybia, Ionactis, Oligoneuron, Oreostemma, Sericocarpus and Symphyotrichum (see : List of Aster synonyms), but are still widely referred to as &quot;Asters&quot; in the horticultural trades.</ActualText>
-			<MCID ID="5" StreamID="66" PageNumber="1" />
-			<MCID ID="0" StreamID="67" PageNumber="2" />
+			<MCID ID="5" StreamID="63" PageNumber="1" />
+			<MCID ID="0" StreamID="21" PageNumber="2" />
 		</P>
-		<P PageNumber="2" ObjID="63">
+		<P PageNumber="2" ObjID="60">
 			<ActualText>References</ActualText>
 			<MCID ID="1" />
 		</P>
-		<P PageNumber="2" ObjID="64">
+		<P PageNumber="2" ObjID="61">
 			<ActualText>The text description is taken from Wikipedia, the free online encyclopedia.</ActualText>
 			<MCID ID="2" />
 		</P>

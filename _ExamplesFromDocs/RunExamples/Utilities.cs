@@ -24,40 +24,6 @@ using System.Collections;
 
 namespace ExamplesProcessing
 {
-    static class Server
-    {
-        public static List<string> Paths = new List<string>();
-        public static string ReadPath, WritePath;
-
-        static Server() {
-            string dir = Utilities.FindDirectory("_ExamplesFromDocs");
-            ReadPath = Path.Combine(dir, @"_ExamplesFromDocs\Images\Server");
-            WritePath = Path.Combine(dir, @"_ExamplesFromDocs\Images\Outputs");
-        }
-
-        public static string MapPath(string path) {
-            path = path.Replace('/', '\\');
-            bool readOnly = path.Contains("..") || path.Contains(@"Rez");
-            path = path.Replace(@"..\", "");
-            path = path.Replace(@"Rez\", "");
-            string src = Path.Combine(ReadPath, path);
-            if (File.Exists(src))
-                return src;
-            if (readOnly)
-                throw new FileNotFoundException();
-            string dst = Path.Combine(WritePath, path);
-            Paths.Add(dst);
-            return dst;
-        }
-
-        public static void Clear() {
-            Paths.Clear();
-            if (Directory.Exists(WritePath))
-                Directory.Delete(WritePath, true);
-            Directory.CreateDirectory(WritePath);
-        }
-    }
-
 	class Response {
 		public static string Write(string value) {
 			return value;
@@ -65,15 +31,15 @@ namespace ExamplesProcessing
 	}
 
 	static class Certificates {
-        public static X509Certificate2 GetFromStore() {
+		public static X509Certificate2 GetFromStore() {
 			try {
-				return new X509Certificate2(Server.MapPath("MyCertificate.p12"), "mypassword", X509KeyStorageFlags.Exportable);
+				return new X509Certificate2("MyCertificate.p12", "mypassword", X509KeyStorageFlags.Exportable);
 			}
 			catch {
 			}
 			return null;
-        }
-    }
+		}
+	}
 
 	static class Utilities {
 		public static string FindDirectory(string folder) {

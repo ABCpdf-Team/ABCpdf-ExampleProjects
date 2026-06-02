@@ -1,5 +1,5 @@
 // ===========================================================================
-//	©2013-2025 WebSupergoo. All rights reserved.
+//	©2013-2026 WebSupergoo. All rights reserved.
 //
 //	This source code is for use exclusively with the ABCpdf product with
 //	which it is distributed, under the terms of the license for that
@@ -506,7 +506,7 @@ namespace ExampleTests {
 			// End Part:
 			// Part: 3 of 5
 			doc.Page = doc.AddPage();
-			int id = doc.AddImageUrl("http://www.yahoo.com/");
+			int id = doc.AddImageUrl("https://www.yahoo.com/");
 			// End Part:
 			// Part: 4 of 5
 			while (true) {
@@ -515,6 +515,8 @@ namespace ExampleTests {
 					break;
 				doc.Page = doc.AddPage();
 				id = doc.AddImageToChain(id);
+				if (doc.PageCount > 5)
+					break;
 			}
 			// End Part:
 			// Part: 5 of 5
@@ -1567,7 +1569,7 @@ namespace ExampleTests {
 			doc.Rect.Inset(72, 144);
 			// End Part:
 			// Part: 2 of 4
-			int id = doc.AddImageUrl("http://www.yahoo.com/");
+			int id = doc.AddImageUrl("https://www.yahoo.com/");
 			// End Part:
 			// Part: 3 of 4
 			while (true) {
@@ -1576,6 +1578,8 @@ namespace ExampleTests {
 					break;
 				doc.Page = doc.AddPage();
 				id = doc.AddImageToChain(id);
+				if (doc.PageCount > 5)
+					break;
 			}
 			// End Part:
 			// Part: 4 of 4
@@ -2945,11 +2949,9 @@ namespace ExampleTests {
 			using var doc = new Doc();
 			// read the data from a file
 			string path = "../mypics/mypic.jpg";
-			using var stream = File.OpenRead(path);
-			byte[] theData = new byte[stream.Length];
-			stream.Read(theData, 0, (int)stream.Length);
+			byte[] data = File.ReadAllBytes(path);
 			// place the data into the image
-			img.SetData(theData);
+			img.SetData(data);
 			doc.Rect.Inset(20, 20);
 			doc.AddImageObject(img, false);
 			doc.Save("imagesetdata.pdf");
