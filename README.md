@@ -1,7 +1,7 @@
 <h1>ABCpdf .NET Official Example Projects</h1>
   <h2>ABCpdf.Drawing Example Project</h2>
 	<p>This is a project designed to parallel the System.Drawing namespace. </p>
-	<p>For example, a System.Drawing.Pen will map to a WebSupergoo.ABCpdf13.Drawing.Pen and a System.Drawing.Bitmap will map to a WebSupergoo.ABCpdf13.Drawing.Bitmap.</p>
+	<p>For example, a System.Drawing.Pen will map to a WebSupergoo.ABCpdf14.Drawing.Pen and a System.Drawing.Bitmap will map to a WebSupergoo.ABCpdf14.Drawing.Bitmap.</p>
 	<p>Because the APIs and class structure are  very similar, it is easy to port System.Drawing code over to produce ABCpdf documents rather than System.Drawing images. </p>
 	<p>In addition there are some ABCpdf extensions to allow support for advanced PDF oriented features like CMYK color spaces.</p>
 	<p>For more details see the project or the System.Drawing Example section of the ABCpdf .NET documentation.</p>
@@ -81,6 +81,10 @@
 	<p>The simplest way to do this is to use the .NET Enterprise Services structures. These have gone through a variety of  iterations - MFC, COM+ and currently .NET Enterprise Services. The names themselves are a bit of a misnomer. For example COM+ is not really COM plus something extra. COM is a way of calling functions in a DLL while COM+ is an architecture which can be used to host application services - two completely different things. Similarly .NET Enterprise Services is not entirely .NET as it relies on COM concepts for implementation.</p>
 	<p>A lot of what you can read on the internet states that .NET Enterprise Services is legacy. There is some truth in this as the architecture is based around technologies created many years ago. However the reality is that these technologies are still very much in use because the  .NET equivalents are not that wonderful. The closest that exists is probably Windows Communication Foundation (WCF) but this is vastly complicated and  difficult to control; cryptic config files and do-or-die options. The .NET Enterprise Services equivalent involves opening up the Component Services control panel, checking a few boxes and then watch the cabbages (your objects) spin. A bit of legacy yes, but also a whole lot of mature.</p>
 	<p>The PDFEnterpriseServices example project under the ABCpdf .NET menu item shows you how to set up a .NET Enterprise Services Component  for converting HTML into PDF. This is relevant only for the MSHTML engine as both the ABCGecko and ABCChrome engines already operate out of process.</p>
+	<h2>PDFSurgeon Example Project</h2>
+	<p>PDFSurgeon is a .NET Windows Forms application designed for inspecting and modifying the contents of PDF files. It serves both as a sample project and a practical utility - with the source code provided, you can easily customize it to fit specific needs, though it should meet most requirements out of the box.</p>
+	<p>After opening a PDF, you can explore its internal objects individually. A built-in search feature lets you locate all objects that match a given structure or reference another specific object. You can edit objects and save the document back to disk.</p>
+	<p>A standout capability is the ability to decompress and directly edit the page content stream with the rendered appearance updating live as you type. This real-time feedback makes it an invaluable tool for understanding how PDF documents and their content streams work.</p>
 	<h2>PDFTable Example Project</h2>
 	<p>The project detailed here shows how to create PDF tables based on programmatic control.</p>
 	<p>There is a certain amount of overlap between this project, the WPFTables and the HTMLTables Example project. All do similar things in slightly different ways.</p>
@@ -140,9 +144,4 @@
 	<p>There is a certain amount of overlap between this project, the PDFTables and the HTMLTables Example project. All do similar things in slightly different ways.</p>
 	<p>This project is based on WPF structure rather than programmatic control or HTML style input. The WPF structure that exists is halfway between the type of layout control you get in HTML and the control you get in a more graphics oriented API like System.Drawing. It is sophisticated enough for document layout but with more complicated document layout structures you start to run into areas in which the structure constrains rather than enables.</p>
 	<p>You can read more about this and how to use this project in the WPF Tables Example section of the ABCpdf .NET documentation.</p>
-	<h2>ABCpdf Example Web Site</h2>
-	<p>The example ASP.NET web site is the same one we use for our online demonstration.</p>
-	<p>It allows you to create and edit a document using a simple online system. You can do things like upload images, add text and graphics and render and download the finished PDF.</p>
-	<p>The user interface is not sophisticated as the aim is to expose ABCpdf code rather than confuse things with complicated JavaScript. So the simplicity of the interface belies the sophistication of the underlying ABCpdf functionality.</p>
-	<p>Because the site is intended for live use, it is not totally self contained and may require some of our other components. </p>
   
