@@ -55,7 +55,7 @@ namespace ABCpdfControls {
 		private Doc mDoc;
 		private int m_iTextId = -1;
 		private int m_iImageId = -1;
-		private int m_iImageWitdth;
+		private int m_iImageWidth;
 		private int m_iImageHeight;
 		private System.Windows.Forms.CheckBox allPagesCheckBox;
 		private System.Windows.Forms.Label label6;
@@ -331,7 +331,7 @@ namespace ABCpdfControls {
 			this.label11.Name = "label11";
 			this.label11.Size = new System.Drawing.Size(148, 16);
 			this.label11.TabIndex = 11;
-			this.label11.Text = "deggrees (counterclockwise)";
+			this.label11.Text = "degrees (counterclockwise)";
 			// 
 			// rotateNumericUpDown
 			// 
@@ -686,7 +686,7 @@ namespace ABCpdfControls {
 						try {
 							theImage  = new XImage();
 							theImage.SetFile(imageFileTextBox.Text);
-							m_iImageWitdth = theImage.Width;
+							m_iImageWidth = theImage.Width;
 							m_iImageHeight = theImage.Height;
 						}
 						catch {
@@ -699,7 +699,7 @@ namespace ABCpdfControls {
 
 					if (FirstTime) {
 						mDoc.Rect.Bottom = (mDoc.CropBox.Height - m_iImageHeight)/2;
-						mDoc.Rect.Left = (mDoc.CropBox.Width - m_iImageWitdth)/2;
+						mDoc.Rect.Left = (mDoc.CropBox.Width - m_iImageWidth)/2;
 						verticalOffsetUpDown.Value = (decimal)mDoc.Rect.Bottom;
 						horizontalOffsetUpDown.Value = (decimal)mDoc.Rect.Left;
 						FirstTime = false;
@@ -709,7 +709,7 @@ namespace ABCpdfControls {
 						mDoc.Rect.Left = (double)horizontalOffsetUpDown.Value;
 					}
 
-					mDoc.Rect.Width = m_iImageWitdth;
+					mDoc.Rect.Width = m_iImageWidth;
 					mDoc.Rect.Height = m_iImageHeight;
 
 					mDoc.Transform.Rotate(rotate, (mDoc.Rect.Left + mDoc.Rect.Right)/2, (mDoc.Rect.Bottom + mDoc.Rect.Top)/2);

@@ -74,7 +74,7 @@ namespace Redaction {
 							int width = 0;
 							if (!widths.TryGetValue(c, out width))
 								width = defaultWidth;
-							width1000ths += defaultWidth;
+							width1000ths += width;
 						}
 						string tj = string.Format("[{0}] TJ\r\n", width1000ths);
 						byte[] tjBytes = ASCIIEncoding.ASCII.GetBytes(tj);

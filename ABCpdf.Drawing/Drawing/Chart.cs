@@ -148,12 +148,14 @@ namespace Nolme.WinForms
 		}
 
 		#region Properties
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public ChartCumulativeMode	CumulativeMode
 		{
 			get { return m_CumulativeMode; }
 			set { m_CumulativeMode = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public ChartRenderingMode	RenderingMode
 		{
 			get { return m_RenderingMode; }
@@ -187,126 +189,147 @@ namespace Nolme.WinForms
 			}
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int	LeftMargin
 		{
 			get {return m_LeftMargin; }
 			set {m_LeftMargin = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int	RightMargin
 		{
 			get {return m_RightMargin; }
 			set {m_RightMargin = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int	TopMargin
 		{
 			get {return m_TopMargin; }
 			set {m_TopMargin = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int	BottomMargin
 		{
 			get {return m_BottomMargin; }
 			set {m_BottomMargin = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int DeltaDepth
 		{
 			get {return m_DeltaDepth; }
 			set {m_DeltaDepth = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public bool	DisplayTextOnColumns
 		{
 			get {return m_DisplayTextOnColumns; }
 			set {m_DisplayTextOnColumns = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public bool	DisplayHiddenSides
 		{
 			get {return m_DisplayHiddenSides; }
 			set {m_DisplayHiddenSides = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Pen		GridPen
 		{
 			get {return m_GridPen; }
 			set {m_GridPen = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Pen		GridPenFor0
 		{
 			get {return m_GridPenFor0; }
 			set {m_GridPenFor0 = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Pen		ColumnPen
 		{
 			get {return m_ColumnPen; }
 			set {m_ColumnPen = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Pen		HiddenColumnPen
 		{
 			get {return m_HiddenColumnPen; }
 			set {m_HiddenColumnPen = value; }
 		}
-		
+
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Brush	LegendBrush
 		{
 			get {return m_LegendBrush; }
 			set {m_LegendBrush = value; }
 		}
-		
+
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Font	LegendFont
 		{
 			get {return m_LegendFont; }
 			set {m_LegendFont = value; }
 		}
-		
+
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Font	ColumnFont
 		{
 			get {return m_ColumnFont; }
 			set {m_ColumnFont = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Font	ColumnTitleFont
 		{
 			get {return m_ColumnTitleFont; }
 			set {m_ColumnTitleFont = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public Font	MainTitleFont
 		{
 			get {return m_MainTitleFont; }
 			set {m_MainTitleFont = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public string	MainTitle
 		{
 			get {return m_MainTitle; }
 			set {m_MainTitle = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int		VerticalAxisMinValue
 		{
 			get {return m_VerticalAxisMinValue; }
 			set {m_VerticalAxisMinValue = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int		VerticalAxisMaxValue
 		{
 			get {return m_VerticalAxisMaxValue; }
 			set {m_VerticalAxisMaxValue = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int		VerticalAxisStep
 		{
 			get {return m_VerticalAxisStep; }
 			set {m_VerticalAxisStep = value; }
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 		public int		MarginBetweenColumn
 		{
 			get {return m_MarginBetweenColumn; }

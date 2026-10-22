@@ -981,6 +981,8 @@ namespace WebSupergoo.PDFSurgeon
 			// when we save we try to keep the object ids constant
 			_doc.SaveOptions.Linearize = false;
 			_doc.SaveOptions.Remap = false;
+			_doc.SaveOptions.Compact = false;
+			_doc.SaveOptions.CompressObjects = false;
 			_doc.Save(temp.Path);
 			_tempFiles.Add(temp);
 			Process.Start(temp.Path);
@@ -1146,6 +1148,8 @@ namespace WebSupergoo.PDFSurgeon
 			// when we save we try to keep the object ids constant
 			_doc.SaveOptions.Linearize = false;
 			_doc.SaveOptions.Remap = false;
+			_doc.SaveOptions.Compact = false;
+			_doc.SaveOptions.CompressObjects = false;
 			_doc.Save(path);
 			_doc.Clear();
 			if (swap) {
@@ -1196,6 +1200,8 @@ namespace WebSupergoo.PDFSurgeon
 						doc.SaveOptions.Remap = false;
 						doc.SaveOptions.Linearize = false;
 						doc.SaveOptions.Incremental = false;
+						doc.SaveOptions.Compact = false;
+						doc.SaveOptions.CompressObjects = false;
 						doc.Save(Path.Combine(folder, $"{name}-rewrite-{n - i}of{n}.pdf"));
 					}
 				}
@@ -1676,6 +1682,8 @@ namespace WebSupergoo.PDFSurgeon
 			string path = Path.GetTempPath() + Guid.NewGuid().ToString() + ".pdf";
 			_doc.SaveOptions.Linearize = false;
 			_doc.SaveOptions.Remap = true;
+			_doc.SaveOptions.Compact = false;
+			_doc.SaveOptions.CompressObjects = false;
 			_doc.Save(path);
 			_doc.Clear();
 			string oldText = Text;

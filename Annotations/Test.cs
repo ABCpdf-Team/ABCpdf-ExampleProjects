@@ -181,20 +181,20 @@ namespace WebSupergoo.Annotations {
 
 					theDoc.FontSize = 24;
 					theDoc.Pos.String = "400 670";
-					int id = theDoc.AddText("Underline");
-					TextMarkupAnnotation markup = new TextMarkupAnnotation(theDoc, fontID, TextMarkupType.Underline, XColor.FromRgb(0, 255, 0));
+					int id1 = theDoc.AddText("Underline");
+					TextMarkupAnnotation markup = new TextMarkupAnnotation(theDoc, id1, TextMarkupType.Underline, XColor.FromRgb(0, 255, 0));
 
 					theDoc.Pos.String = "400 640";
-					fontID = theDoc.AddText("Highlight");
-					markup = new TextMarkupAnnotation(theDoc, fontID, TextMarkupType.Highlight, XColor.FromRgb(255, 255, 0));
+					int id2 = theDoc.AddText("Highlight");
+					markup = new TextMarkupAnnotation(theDoc, id2, TextMarkupType.Highlight, XColor.FromRgb(255, 255, 0));
 
 					theDoc.Pos.String = "400 610";
-					fontID = theDoc.AddText("StrikeOut");
-					markup = new TextMarkupAnnotation(theDoc, fontID, TextMarkupType.StrikeOut, XColor.FromRgb(255, 0, 0));
+					int id3 = theDoc.AddText("StrikeOut");
+					markup = new TextMarkupAnnotation(theDoc, id3, TextMarkupType.StrikeOut, XColor.FromRgb(255, 0, 0));
 
 					theDoc.Pos.String = "400 580";
-					fontID = theDoc.AddText("Squiggly");
-					markup = new TextMarkupAnnotation(theDoc, fontID, TextMarkupType.Squiggly, XColor.FromRgb(0, 0, 255));
+					int id4 = theDoc.AddText("Squiggly");
+					markup = new TextMarkupAnnotation(theDoc, id4, TextMarkupType.Squiggly, XColor.FromRgb(0, 0, 255));
 
 					CircleAnnotation circle = new CircleAnnotation(theDoc, new XRect("80 320 285 525"), XColor.FromRgb(255, 255, 0), XColor.FromRgb(255, 128, 0));
 					circle.CircleElement.EntryBS = new BorderStyleElement(circle.CircleElement);
